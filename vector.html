@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>100維幾何解耦與自動清洗同步對齊系統 (終極修復版)</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f1f5f9; color: #1e293b; padding: 20px; margin: 0; }
+        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
+        @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #0f172a; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .help-text { font-size: 13px; color: #64748b; margin-top: -5px; margin-bottom: 10px; }
+        textarea, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .input-file-group { display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+        input[type="file"] { font-size: 13px; }
+        button { background-color: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background-color: #1d4ed8; }
+        .btn-success { background-color: #10b981; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-danger { background-color: #dc2626; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-info { background-color: #0ea5e9; color: white; }
+        .btn-info:hover { background-color: #0284c7; }
+        .btn-table { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; margin-right: 4px; }
+        .math-box { background-color: #0f172a; color: #38bdf8; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 4px solid #3b82f6; overflow-x: auto; white-space: pre-wrap; line-height: 1.5; }
+        canvas { border: 2px solid #cbd5e1; border-radius: 8px; background-color: #ffffff; display: block; margin: 0 auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .table-wrapper { overflow-x: auto; max-height: 300px; border: 1px solid #e2e8f0; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; vertical-align: middle; }
+        th { background-color: #f8fafc; position: sticky; top: 0; z-index: 10; }
+        .vector-str { font-family: monospace; color: #0369a1; display: inline-block; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; }
+        .flex-group { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .score-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; flex-wrap: wrap; }
+        .score-btn { background: #e2e8f0; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .score-btn:hover { background: #cbd5e1; }
+        .btn-other { background-color: #ea580c; color: white; }
+        .btn-other:hover { background-color: #c2410c; }
+        .lang-badge { padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .lang1 { background-color: #e0f2fe; color: #0369a1; border: 2px solid #2563eb; } 
+        .lang2 { background-color: #f3e8ff; color: #6b21a8; } 
+        .lang3 { background-color: #fce7f3; color: #9d174d; border: 1.5px solid #db2777; } 
+        .output-box { margin-bottom: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; }
+        .reply-box { margin-top: 8px; background: #fffbeb; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; font-size: 24px; margin-bottom: 5px;">100維幾何解耦與自動記憶清洗同步系統 (修復版)</h1>
+    <p style="text-align: center; color:#64748b; margin-top:0; margin-bottom:20px;">徹底修復 renderTable 未定義範疇錯誤！支援前三項缺格斬殺、缺陷補零與後方特徵一致拷貝</p>
+
+    <div class="layout">
+        <!-- 左側面板 -->
+        <div>
+            <div class="card">
+                <h2>1. 輸入平行語料庫 (以空白鍵相隔，第 2 行支援 \...\ 包裹多字詞一體化)</h2>
+                <p class="help-text">語言 3 固定為「繁體中文」。系統在重灌舊資料或進行數據匯入時，會自動在後台啟動 100 維特徵空間的三段式安全清洗去噪演算法！</p>
+                <textarea id="textInput" rows="5" placeholder="請輸入語句...">鬥陣 參加 數學 競賽 ， ？
+\participate in\ Math \competition group\ , ?
+正確 參加 數學 競賽 ， ？</textarea>
+                <div class="flex-group" style="margin-top: 12px;">
+                    <button id="generateBtn" class="btn-danger" style="flex: 1;">⚠️ 全新初始化模型</button>
+                    <button id="appendBtn" class="btn-success" style="flex: 1;">➕ 增量加入新語句</button>
+                </div>
+            </div>
+
+            <!-- 100維多源快取數據導入更新引擎 -->
+            <div class="card" style="border: 1px solid #0ea5e9; background-color: #f0f9ff;">
+                <h2>🔄 100維雲端/本地 多源快取數據導入清洗引擎</h2>
+                <p class="help-text">重灌資料時具備：(1) 缺格自動填補 (2) 前項十分相近或一致時後方自動複製 (3) 唯一雜湊鍵、字詞、語言別等前三項缺格無痛斬殺！</p>
+                
+                <div style="margin-bottom: 8px;">
+                    <input type="text" id="importUrlInput" placeholder="請輸入遠端 CSV 網址（例如：https://google.com）">
+                </div>
+                
+                <textarea id="importCsvInput" rows="2" placeholder="或者直接在此貼上 CSV 歷史快取內容..."></textarea>
+                
+                <div class="input-file-group">
+                    <input type="file" id="importFileInput" accept=".csv,.txt">
+                    <button id="importBtn" class="btn-info" style="margin-left: auto;">⚡ 執行 100維數據同步匯入並清洗</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>2. 100維隔離字詞資料庫 (已完全修復：即時編輯與列表永久刪除鍵 🛠️)</h2>
+                <div class="table-wrapper">
+                    <table id="vectorTable">
+                        <thead>
+                            <tr><th>唯一標籤鍵</th><th>原始字詞</th><th>語言別</th><th>100維嵌入向量</th><th>權重</th><th>操作面板</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" style="text-align:center; color:#94a3b8;">請點擊上方按鈕建立、增量或匯入資料結構</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button id="exportBtn" class="btn-success" style="margin-top:12px; width:100%; display:none;">下載 Google 試算表 100維 CSV</button>
+            </div>
+
+            <div class="card">
+                <h2>3. 輸入測試句子 (自動執行多語言翻譯與智能生成回覆)</h2>
+                <div class="flex-group">
+                    <input type="text" id="queryInput" placeholder="例如：繁體中文翻譯，A選項？ 或 \participate in\ Math?">
+                    <button id="queryBtn">智能切分並生成回覆</button>
+                </div>
+                <div id="outputContainer" style="display:none; margin-top:15px; border-top:1px dashed #e2e8f0; padding-top:15px;">
+                    <div style="margin-bottom: 12px;">偵測到輸入句子源自：<span id="detectedLang" class="lang-badge lang1">-</span></div>
+                    
+                    <div class="reply-box">
+                        <strong style="color: #b45309;">🤖 AI 智能情境回覆生成結果（限縮第51-70維因果腦）：</strong>
+                        <div id="aiReplyOutput" style="margin-top: 5px; font-weight: bold; color: #1e293b; font-size: 16px; background: white; padding: 8px; border-radius: 4px; border: 1px solid #fde68a;">-</div>
+                        
+                        <div class="score-row" style="margin-top: 10px; background: #fffbeb;">
+                            <span style="font-size: 12px; font-weight: bold; color: #b45309;">請為【AI情境回覆功能】單獨打分或干預：</span>
+                            <button class="score-btn" style="background: #fef3c7;" onclick="rateAIResponse(5)">5分 (完美)</button>
+                            <button class="score-btn" style="background: #fef3c7;" onclick="rateAIResponse(4)">4分 (可用)</button>
+                            <button class="score-btn" style="background: #fef3c7;" onclick="rateAIResponse(3)">3分 (稍推開)</button>
+                            <button class="score-btn" style="background: #fef3c7;" onclick="rateAIResponse(2)">2分 (微調)</button>
+                            <button class="score-btn" style="background: #fef3c7;" onclick="rateAIResponse(1)">1分 (強力拉回)</button>
+                            <button class="score-btn btn-other" onclick="hardInterventionReply()">其他 (反向引力)</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; margin-bottom: 5px; font-size: 13px; font-weight: bold; color: #475569;">跨語言平行句子對齊與獨立回饋（調取前50維詞意庫）：</div>
+                    <div id="multiLangFeedbackArea"></div>
+                </div>
+            </div>
+        </div>
+        <!-- 右側面板 -->
+        <div>
+            <div class="card">
+                <h2>4. 多語言、標點與意圖空間 2D 投影分佈圖</h2>
+                <canvas id="vectorCanvas" width="500" height="340"></canvas>
+            </div>
+            <div class="card">
+                <h2>5. AI 智能斷詞、語意路由與 100維幾何解耦運算過程</h2>
+                <div id="mathConsole" class="math-box">等待操作...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wordBank = {}; // 核心記憶庫：{ "L[編號]_[字詞]": { rawWord, langId, index, vec:[], weight } }
+        let currentQueryWords = []; 
+        let currentInputLangId = 1;
+        let matchedSentences = {};  
+        let currentAIResponseWord = ""; // 紀錄當前被選中作為 AI 情境回覆的單字鍵
+        
+        const textInput = document.getElementById('textInput');
+        const importUrlInput = document.getElementById('importUrlInput');
+        const importCsvInput = document.getElementById('importCsvInput');
+        const importFileInput = document.getElementById('importFileInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const appendBtn = document.getElementById('appendBtn');
+        const importBtn = document.getElementById('importBtn');
+        const vectorTableBody = document.querySelector('#vectorTable tbody');
+        const exportBtn = document.getElementById('exportBtn');
+        const queryInput = document.getElementById('queryInput');
+        const queryBtn = document.getElementById('queryBtn');
+        const outputContainer = document.getElementById('outputContainer');
+        const detectedLang = document.getElementById('detectedLang');
+        const aiReplyOutput = document.getElementById('aiReplyOutput');
+        const multiLangFeedbackArea = document.getElementById('multiLangFeedbackArea');
+        const mathConsole = document.getElementById('mathConsole');
+        const canvas = document.getElementById('vectorCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 核心數學升級：生成 100 維隨機嵌入向量
+        function generate100DVector() {
+            let vec = [];
+            let sumSq = 0;
+            for(let i=0; i<100; i++) {
+                let v = (Math.random() * 2) - 1;
+                vec.push(v);
+                sumSq += v * v;
+            }
+            let len = Math.sqrt(sumSq) || 1;
+            return vec.map(v => v / len);
+        }
+        // 修正版 2D 平面投影繪圖引擎：防禦 NaN 錯誤，確保畫布穩定繪製
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製坐標中軸
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+
+            const langColors = { 1: '#2563eb', 2: '#7c3aed', 3: '#db2777' };
+
+            for(let key in wordBank) {
+                let item = wordBank[key];
+                if (!item || !item.vec || item.vec.length < 2) continue;
+                
+                let vX = parseFloat(item.vec[0]);
+                let vY = parseFloat(item.vec[1]);
+                
+                if (isNaN(vX) || isNaN(vY)) { vX = 0.0; vY = 0.0; }
+
+                let cx = (vX + 1) * (canvas.width - 120) / 2 + 60;
+                let cy = (vY + 1) * (canvas.height - 120) / 2 + 60;
+                
+                ctx.fillStyle = langColors[item.langId] || '#2563eb';
+                ctx.beginPath(); 
+                ctx.arc(cx, cy, 6, 0, Math.PI * 2); 
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 11px sans-serif'; 
+                ctx.fillText(item.rawWord, cx + 9, cy + 4);
+            }
+        }
+
+        // 動態表單資料渲染器：完美注入行內即時「修改」與「刪除」事件控制鍵
+        function renderTable() {
+            vectorTableBody.innerHTML = "";
+            for(let key in wordBank) {
+                let item = wordBank[key];
+                let row = document.createElement('tr');
+                
+                let cell1 = document.createElement('td'); cell1.innerHTML = `<code>${key}</code>`;
+                let cell2 = document.createElement('td'); cell2.innerHTML = `<strong>${item.rawWord}</strong>`;
+                let cell3 = document.createElement('td'); cell3.innerHTML = `<span class="lang-badge lang${item.langId}">語言 ${item.langId}</span>`;
+                
+                let fVec = item.vec.map(v => v.toFixed(2)).join(', ');
+                let cell4 = document.createElement('td'); 
+                cell4.innerHTML = `<span class="vector-str" title="${fVec}">[${fVec}]</span>`;
+                
+                let cell5 = document.createElement('td'); cell5.innerText = item.weight.toFixed(2);
+                
+                // 操作面板按鈕注入
+                let cell6 = document.createElement('td');
+                cell6.innerHTML = `
+                    <button class="btn-success btn-table" onclick="editNodeInline('${key}')">修改</button>
+                    <button class="btn-danger btn-table" onclick="deleteNodeInline('${key}')">刪除</button>
+                `;
+                
+                row.appendChild(cell1); row.appendChild(cell2); row.appendChild(cell3); row.appendChild(cell4); row.appendChild(cell5); row.appendChild(cell6);
+                vectorTableBody.appendChild(row);
+            }
+        }
+        // 100維意圖判斷特徵分配（空間劃分：1-50詞意對齊，51-70意圖大腦，71-100保護快取軸）
+        function getPresetIntentVector(rawWord) {
+            let vec = [];
+            for (let i = 0; i < 100; i++) vec.push((Math.random() * 2) - 1);
+            let w = rawWord.toLowerCase();
+
+            if (["翻譯", "閩南語", "台語", "臺語"].includes(w)) {
+                for(let i=50; i<55; i++) vec[i] = 0.9;
+            }
+            if (["羅馬", "臺羅", "台羅", "拼音"].includes(w)) {
+                for(let i=50; i<55; i++) vec[i] = 0.85;
+            }
+            if (["中文", "漢字", "國語", "繁體中文"].includes(w)) {
+                for(let i=50; i<55; i++) vec[i] = 0.8;
+            }
+            if (["你好", "午安", "並且", "而且", "但是", "然後"].includes(w)) {
+                for(let i=55; i<60; i++) vec[i] = 0.95;
+            }
+            if (["選擇題", "選項", "a", "b", "c", "d", "a選項", "b選項"].includes(w)) {
+                for(let i=60; i<65; i++) vec[i] = 0.95;
+            }
+            if ([",", "，", "?", "？"].includes(w)) {
+                for(let i=65; i<70; i++) vec[i] = 0.98;
+            }
+
+            // 安全修正：執行 L2 正規化
+            let sumSq = 0;
+            for(let i=0; i<100; i++) {
+                if (typeof vec[i] === "undefined" || isNaN(vec[i])) vec[i] = 0.0;
+                sumSq += vec[i] * vec[i];
+            }
+            let len = Math.sqrt(sumSq) || 1;
+            return vec.map(v => v / len);
+        }
+
+        // 高階分詞器：全面支援 \...\ 特殊標記遮罩，不論有無空格皆視為單一詞，並強制隔離全半形標點
+        function parseLineWithMasking(lineStr, langId) {
+            let words = [];
+            let safeStr = lineStr.replace(/([,，?？])/g, " $1 ");
+            
+            let regex = /\\(.*?)\\|([^\s]+)/g;
+            let match;
+            while ((match = regex.exec(safeStr)) !== null) {
+                if (match[1] !== undefined) {
+                    words.push(match[1].trim());
+                } else if (match[2] !== undefined) {
+                    words.push(match[2]);
+                }
+            }
+            return words;
+        }
+
+        // 智能斷詞器 (Tokenizer)：升級支援 100維 \...\ 多字詞一體化切割規則比對
+        function tokenizeInput(text, langId) {
+            let tokens = [];
+            let safeText = text.replace(/([,，?？])/g, " $1 "); 
+            let rText = safeText.trim();
+
+            if (langId === 2) {
+                let regex = /\\(.*?)\\|([^\s]+)/g;
+                let match;
+                while ((match = regex.exec(safeText)) !== null) {
+                    let targetWord = (match[1] !== undefined) ? match[1].trim() : match[2];
+                    let checkKey = `L2_${targetWord}`;
+                    if (wordBank[checkKey]) tokens.push(checkKey);
+                }
+            } else {
+                let maxLen = 15;
+                while (rText.length > 0) {
+                    let matched = false;
+                    for (let len = Math.min(maxLen, rText.length); len > 0; len--) {
+                        let subStr = rText.substring(0, len);
+                        let checkKey = `L${langId}_${subStr}`;
+                        if (wordBank[checkKey]) {
+                            tokens.push(checkKey);
+                            rText = rText.substring(len).trim();
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) { rText = rText.substring(1).trim(); }
+                }
+            }
+            return tokens;
+        }
+        // 核心解構剖析函式：處理 CSV 快取字串、100維缺陷填補與三功能自動清洗去噪
+        function parseAndInjectCSV(csvText) {
+            let lines = csvText.split("\n");
+            let successCount = 0;
+            let patchCount = 0;
+            let discardCount = 0;
+            let propCount = 0;
+
+            let tempNodes = [];
+
+            // 第一階段：基礎解構與「前三項缺格無痛斬殺」
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                let cells = line.split(",");
+                if (cells.length < 4) return;
+
+                // 移除外層可能因 Excel 導出保護而產生的引號文字識別符號 "
+                let uniqueKey = cells[0] ? cells[0].replace(/^"|"$/g, '').trim() : "";
+                let rawWord = cells[1] ? cells[1].replace(/^"|"$/g, '').trim() : "";
+                let langStr = cells[2] ? cells[2].replace(/^"|"$/g, '').trim() : "";
+
+                // 核心洗淨規則 1：前三項（雜湊鍵、名稱、組別）有任何一項缺格，勿疑惑直接砍掉、拒絕載入
+                if (!uniqueKey || !rawWord || !langStr) {
+                    discardCount++;
+                    return; 
+                }
+
+                let weight = parseFloat(cells[3]);
+                if (isNaN(weight)) weight = 1.0;
+
+                let langId = parseInt(langStr.replace(/[^0-9]/g, "")) || 1;
+                
+                // 讀取 100 維嵌入向量數據
+                let vec = [];
+                for (let i = 4; i < 104; i++) {
+                    if (cells[i] !== undefined && cells[i].trim() !== "") {
+                        let val = parseFloat(cells[i].replace(/^"|"$/g, ''));
+                        vec.push(isNaN(val) ? 0.0 : val);
+                    }
+                }
+
+                // 核心洗淨規則 2：後方缺陷維度自動填補（若不足 100 維，自動補 0.0）
+                if (vec.length < 100) {
+                    patchCount++;
+                    while (vec.length < 100) {
+                        vec.push(0.0);
+                    }
+                } else if (vec.length > 100) {
+                    vec = vec.slice(0, 100);
+                }
+
+                tempNodes.push({
+                    key: uniqueKey,
+                    rawWord: rawWord,
+                    langId: langId,
+                    weight: weight,
+                    vec: vec
+                });
+            });
+
+            // 第二階段：比對「前幾項十分相近」或「完全一致」進行後方拷貝傳播
+            for (let i = 0; i < tempNodes.length; i++) {
+                let nodeA = tempNodes[i];
+                for (let j = i + 1; j < tempNodes.length; j++) {
+                    let nodeB = tempNodes[j];
+
+                    if (nodeA.langId === nodeB.langId) {
+                        // 計算前 50 維的幾何距離，判斷詞意是否完全一致或極度相近
+                        let diffSq = 0;
+                        let matchExact = true;
+                        for (let k = 0; k < 50; k++) {
+                            let diff = (nodeA.vec[k] || 0) - (nodeB.vec[k] || 0);
+                            diffSq += diff * diff;
+                            if (nodeA.vec[k] !== nodeB.vec[k]) matchExact = false;
+                        }
+                        let dist = Math.sqrt(diffSq);
+
+                        // 核心洗淨規則 3：前幾項完全一致（或極度相近，距離小於 0.01），判定合理，強迫後方特徵亦一致
+                        if (matchExact || dist < 0.01) {
+                            propCount++;
+                            // 將 nodeA 後方 50 維（因果大腦 + 快取錨定軸）複製給 nodeB
+                            for (let k = 50; k < 100; k++) {
+                                nodeB.vec[k] = nodeA.vec[k];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 第三階段：正式安全注入全局資料庫
+            tempNodes.forEach(node => {
+                wordBank[node.key] = {
+                    rawWord: node.rawWord,
+                    langId: node.langId,
+                    index: 0,
+                    vec: node.vec,
+                    weight: node.weight
+                };
+                successCount++;
+            });
+
+            mathConsole.innerText = `【⚡ 100維自動清洗完工】\n🟢 成功還原並快取：${successCount} 個節點\n🧲 前項一致後方拷貝：${propCount} 次\n🩹 缺陷維度自動填補：${patchCount} 筆\n❌ 前三項缺格無痛斬殺：${discardCount} 筆\n2D 投影圖表已同步重繪！`;
+            return successCount;
+        }
+
+        // 多功能導入非同步同步引擎
+        importBtn.addEventListener('click', async () => {
+            let urlStr = importUrlInput.value.trim();
+            let pastedText = importCsvInput.value.trim();
+            let fileObj = importFileInput.files[0];
+            let totalImported = 0;
+
+            mathConsole.innerText = "【⏳ 系統通知】正在啟動多源同步引擎，解構 100維 特徵中...";
+
+            try {
+                if (urlStr) {
+                    let response = await fetch(urlStr);
+                    if (!response.ok) throw new Error("遠端網路請求失敗，請確認網址是否已發布為 CSV 格式");
+                    let remoteText = await response.text();
+                    totalImported += parseAndInjectCSV(remoteText);
+                }
+                if (fileObj) {
+                    let fileText = await new Promise((resolve, reject) => {
+                        let reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = (e) => reject(new Error("本地檔案讀取中斷"));
+                        reader.readAsText(fileObj);
+                    });
+                    totalImported += parseAndInjectCSV(fileText);
+                }
+                if (pastedText) {
+                    totalImported += parseAndInjectCSV(pastedText);
+                }
+
+                if (totalImported > 0) {
+                    renderTable(); // 核心安全修復：加載順序重排後，此處絕對能安全調用！
+                    drawCanvas(); 
+                    exportBtn.style.display = 'block';
+                } else {
+                    alert("導入失敗！未檢測到任何有效的 CSV 100維數據");
+                }
+            } catch (err) {
+                mathConsole.innerText = `【❌ 導入路由失敗】數據更新中斷。\n可能原因：跨網域政策限制(CORS)、格式不符。\n出錯細節: ${err.message}`;
+                alert("數據同步發生錯誤，請查看右側數學控制台。");
+            }
+        });
+        // 100維核心初始化與增量對齊演算法 (完美鎖定舊有特徵記憶，防止重灌覆蓋)
+        function processInputData(isIncremental) {
+            const lines = textInput.value.split('\n');
+            let parsedLines = [];
+            for (let l = 0; l < 3; l++) {
+                let lineStr = lines[l] ? lines[l].trim() : "";
+                parsedLines.push(parseLineWithMasking(lineStr, l + 1));
+            }
+
+            let len1 = parsedLines[0] ? parsedLines[0].length : 0;
+            let len2 = parsedLines[1] ? parsedLines[1].length : 0;
+            let len3 = parsedLines[2] ? parsedLines[2].length : 0;
+            let maxWords = Math.max(len1, len2, len3);
+
+            let newNodesCount = 0;
+            let reusedNodesCount = 0;
+
+            let sharedCommaVector = generate100DVector();
+            let sharedQuestionVector = generate100DVector();
+
+            for (let index = 0; index < maxWords; index++) {
+                let sharedBaseVector = generate100DVector(); 
+
+                for (let l = 0; l < 3; l++) {
+                    let langId = l + 1;
+                    let word = (parsedLines[l] && parsedLines[l][index]) ? parsedLines[l][index] : null;
+                    if (word) {
+                        let uniqueKey = `L${langId}_${word}`;
+
+                        // 記憶體保護快取機制：如果此詞彙早已存在，直接沿用它，絕不洗掉或覆蓋
+                        if (wordBank[uniqueKey]) {
+                            reusedNodesCount++;
+                            continue; 
+                        }
+
+                        let customVec = [...sharedBaseVector];
+                        if (["，", ","].includes(word)) customVec = [...sharedCommaVector];
+                        if (["？", "?"].includes(word)) customVec = [...sharedQuestionVector];
+
+                        wordBank[uniqueKey] = {
+                            rawWord: word,
+                            langId: langId,
+                            index: index,
+                            vec: customVec, 
+                            weight: 1.0
+                        };
+                        newNodesCount++;
+                    }
+                }
+            }
+
+            // 預建意圖種子詞彙比對保護
+            const seeds = [
+                {w:"翻譯",l:1},{w:"閩南語",l:1},{w:"台語",l:1},{w:"臺語",l:1},
+                {w:"羅馬",l:2},{w:"臺羅",l:2},{w:"台羅",l:2},{w:"拼音",l:2},
+                {w:"中文",l:3},{w:"漢字",l:3},{w:"國語",l:3},{w:"繁體中文",l:3},
+                {w:"你好",l:1},{w:"午安",l:1},{w:"並且",l:1},{w:"而且",l:1},{w:"但是",l:1},{w:"然後",l:1},
+                {w:"選擇題",l:3},{w:"選項",l:3},{w:"A",l:2},{w:"B",l:2},{w:"C",l:2},{w:"D",l:2},{w:"A選項",l:3},{w:"B選項",l:3},
+                {w:",",l:2},{w:"，",l:1},{w:"?",l:2},{w:"？",l:1}
+            ];
+            
+            seeds.forEach(s => {
+                let k = `L${s.l}_${s.w}`;
+                if (wordBank[k]) {
+                    reusedNodesCount++;
+                    return;
+                }
+                if (!wordBank[k]) {
+                    let targetVec = getPresetIntentVector(s.w);
+                    if (["，", ","].includes(s.w)) targetVec = [...sharedCommaVector];
+                    if (["？", "?"].includes(s.w)) targetVec = [...sharedQuestionVector];
+                    wordBank[k] = { rawWord: s.w, langId: s.l, index: 99, vec: targetVec, weight: 1.0 };
+                    newNodesCount++;
+                }
+            });
+
+            renderTable(); 
+            drawCanvas(); 
+            exportBtn.style.display = 'block';
+
+            if (isIncremental) {
+                mathConsole.innerText = `【100維增量加入完工】\n➕ 本次全新加入特徵字詞：${newNodesCount} 個\n♻️ 自動沿用舊特徵保護記憶：${reusedNodesCount} 個\n空間資料庫目前管理 ${Object.keys(wordBank).length} 個特徵質點。`;
+            } else {
+                mathConsole.innerText = `【100維意圖模型全新重設完工】\n➕ 全新建立特徵字詞：${newNodesCount} 個\n♻️ 自動沿用舊特徵保護記憶：${reusedNodesCount} 個\n目前共管理 ${Object.keys(wordBank).length} 個 100維特徵節點。`;
+            }
+        }
+
+        // 綁定基礎按鈕
+        generateBtn.addEventListener('click', () => {
+            let userConfirm = confirm("⚠️ 警告！全新初始化將會清空所有舊資料與打分記憶（除非使用匯入功能重灌），確定要重設嗎？");
+            if (userConfirm) { wordBank = {}; processInputData(false); }
+        });
+
+        appendBtn.addEventListener('click', () => { processInputData(true); });
+        // 核心幾何推算：第 51-70 維意圖路由判斷 + 前 50 維詞意解答抽取引擎
+        queryBtn.addEventListener('click', () => {
+            const queryRaw = queryInput.value.replace(/\s+/g, " ").trim();
+            if(!queryRaw) return;
+
+            let bestLangId = 1;
+            let bestTokens = [];
+            let maxScore = -1;
+
+            for (let langId = 1; langId <= 3; langId++) {
+                let tokens = tokenizeInput(queryRaw, langId);
+                if (tokens.length > maxScore) {
+                    maxScore = tokens.length;
+                    bestLangId = langId;
+                    bestTokens = tokens;
+                }
+            }
+
+            currentQueryWords = bestTokens;
+            currentInputLangId = bestLangId;
+
+            if (currentQueryWords.length === 0) {
+                alert("電腦無法切分此句子！請確認字詞是否有先存在於上方資料庫中。");
+                return;
+            }
+
+            detectedLang.innerText = `語言 ${currentInputLangId}`;
+            detectedLang.className = `lang-badge lang${currentInputLangId}`;
+
+            let targetLangs = [1, 2, 3].filter(id => id !== currentInputLangId);
+            matchedSentences = {}; 
+            
+            let mathLogs = `【前向推算：100維幾何雙解耦張量解碼】\n輸入句子: "${queryRaw}" (判定為 語言 ${currentInputLangId})\n\n`;
+
+            // 1. AI 智能回覆生成【完美解耦、限定在第 51 至 70 維因果空間】
+            let replyResult = [];
+            currentAIResponseWord = "";
+            let maxTotalResponseScore = -9999;
+
+            currentQueryWords.forEach(qKey => {
+                let qItem = wordBank[qKey];
+                if (!qItem) return;
+
+                for (let key in wordBank) {
+                    if (!wordBank[key] || wordBank[key].langId !== 1 || currentQueryWords.includes(key)) continue;
+                    let rItem = wordBank[key];
+
+                    let responseDot = 0;
+                    // 【100維幾何隔離】：純粹提取第 51 至 70 維度進行意圖內積計算
+                    for (let i = 50; i < 70; i++) { 
+                        responseDot += (qItem.vec[i] || 0) * (rItem.vec[i] || 0); 
+                    }
+                    
+                    if (responseDot > maxTotalResponseScore) {
+                        maxTotalResponseScore = responseDot;
+                        currentAIResponseWord = key; 
+                    }
+                }
+            });
+
+            if (currentAIResponseWord && wordBank[currentAIResponseWord]) {
+                replyResult.push(wordBank[currentAIResponseWord].rawWord);
+                mathLogs += `★ 【第51-70維因果腦判定】意圖路由點積極大值鎖定 ➔ "${wordBank[currentAIResponseWord].rawWord}" (意圖大腦得分: ${maxTotalResponseScore.toFixed(3)})\n\n`;
+            } else {
+                replyResult = ["請重新引導對齊"];
+            }
+            aiReplyOutput.innerText = replyResult.join("");
+
+            // 2. 跨語言翻譯解答生成【限定抽調前 50 維詞意空間】
+            multiLangFeedbackArea.innerHTML = "";
+
+            targetLangs.forEach(tLang => {
+                let sentenceResult = [];
+                mathLogs += `➔ 正在為【語言 ${tLang}】進行翻譯解答對齊 (抽調前 50 維特徵)：\n`;
+
+                currentQueryWords.forEach(qKey => {
+                    let qItem = wordBank[qKey];
+                    if (!qItem) return;
+                    let qVec = qItem.vec;
+                    let bestTargetWord = "";
+                    let bestScore = -9999;
+
+                    for (let key in wordBank) {
+                        let tItem = wordBank[key];
+                        if (!tItem || tItem.langId !== tLang) continue;
+
+                        let dotProduct = 0;
+                        // 【特徵取用】：只計算前 50 維詞意對齊空間的點積
+                        for (let i = 0; i < 50; i++) { 
+                            dotProduct += (qVec[i] || 0) * (tItem.vec[i] || 0); 
+                        }
+
+                        let posBonus = (qItem.index === tItem.index) ? 0.3 : 0.0;
+                        let finalScore = (dotProduct * tItem.weight) + posBonus;
+
+                        if (finalScore > bestScore) {
+                            bestScore = finalScore;
+                            bestTargetWord = tItem.rawWord;
+                        }
+                    }
+
+                    if (bestTargetWord) {
+                        sentenceResult.push(bestTargetWord);
+                        mathLogs += `  - 來源字 "${qItem.rawWord}" ➔ 最佳對齊解答: "${bestTargetWord}" (前50維點積得分: ${bestScore.toFixed(3)})\n`;
+                    }
+                });
+
+                let generatedSentence = (tLang === 2) ? sentenceResult.join(" ") : sentenceResult.join("");
+                matchedSentences[tLang] = { sentence: generatedSentence, words: sentenceResult };
+                mathLogs += `  ★ 【語言 ${tLang}】解答對齊產出 ➔ "${generatedSentence}"\n\n`;
+            });
+
+            // 3. 動態渲染打分面板 UI
+            targetLangs.forEach(tLang => {
+                let generatedSentence = matchedSentences[tLang].sentence;
+                let langBox = document.createElement('div');
+                langBox.className = 'output-box';
+                langBox.style.borderLeftColor = tLang === 1 ? '#2563eb' : (tLang === 2 ? '#7c3aed' : '#db2777');
+                langBox.innerHTML = `
+                    <div>【語言 ${tLang}】解答對齊答案 ➔ <span style="color:#0f172a; font-weight:bold; font-size:15px;">"${generatedSentence}"</span></div>
+                    <div class="score-row">
+                        <span>請打分 (僅修正前50維)：</span>
+                        <button class="score-btn" onclick="rateSingleLang(${tLang}, 5)">5分 (完美)</button>
+                        <button class="score-btn" onclick="rateSingleLang(${tLang}, 4)">4分 (可用)</button>
+                        <button class="score-btn" onclick="rateSingleLang(${tLang}, 3)">3分 (相關/稍推開)</button>
+                        <button class="score-btn" onclick="rateSingleLang(${tLang}, 2)">2分 (部分正確)</button>
+                        <button class="score-btn" onclick="rateSingleLang(${tLang}, 1)">1分 (大力修正)</button>
+                        <button class="score-btn btn-other" onclick="hardIntervention(${tLang})">其他 (引力定位)</button>
+                    </div>
+                `;
+                multiLangFeedbackArea.appendChild(langBox);
+            });
+
+            outputContainer.style.display = 'block';
+            mathConsole.innerText = mathLogs;
+        });
+
+        // 跨語言對齊 1~5 分條件梯度更新 (幾何解耦：限定只修正前 50 維詞意庫)
+        window.rateSingleLang = function(targetLangId, score) {
+            let reward = 0;
+            switch(score) {
+                case 5: reward = 0.0; break;
+                case 4: reward = 0.2; break;
+                case 3: reward = -0.15; break;
+                case 2: reward = 0.6; break;
+                case 1: reward = 2.2; break;
+            }
+
+            if (score === 5) { removeFeedbackBox(targetLangId); return; }
+
+            let targetData = matchedSentences[targetLangId];
+            if (!targetData) return;
+
+            targetData.words.forEach(tWord => {
+                let tKey = `L${targetLangId}_${tWord}`;
+                let tItem = wordBank[tKey];
+                if (!tItem) return;
+
+                tItem.weight += (reward * 0.2);
+                let vecR = tItem.vec;
+                currentQueryWords.forEach(qKey => {
+                    let qItem = wordBank[qKey];
+                    if (!qItem) return;
+                    let qVec = qItem.vec;
+                    // 【解耦梯度保護】：只准許更新前 50 維度的座標
+                    for (let i = 0; i < 50; i++) { vecR[i] += reward * (qVec[i] || 0); }
+                });
+
+                let sumSq = 0;
+                for (let i = 0; i < 100; i++) { sumSq += vecR[i] * vecR[i]; }
+                let len = Math.sqrt(sumSq) || 1;
+                tItem.vec = vecR.map(v => v / len);
+            });
+
+            renderTable(); drawCanvas(); removeFeedbackBox(targetLangId);
+        };
+        // 全新功能：資料庫實時單獨修改
+        window.editNodeInline = function(key) {
+            let item = wordBank[key];
+            if (!item) return;
+
+            let newWeight = prompt(`【100維即時編輯 - ${key}】\n請輸入新的權重常數 (目前為: ${item.weight.toFixed(2)}) :`, item.weight);
+            if (newWeight === null) return; 
+
+            let parsedWeight = parseFloat(newWeight);
+            if (isNaN(parsedWeight)) {
+                alert("輸入無效！權重必須為數字。");
+                return;
+            }
+
+            item.weight = parsedWeight;
+            mathConsole.innerText = `【🛠️ 資料庫微調成功】已將節點 [${key}] 的權重常數手動變更為：${parsedWeight.toFixed(2)}`;
+            
+            renderTable();
+            drawCanvas();
+        };
+
+        // 【終極 Bug 修復】：徹底永久刪除資料庫節點，不留死角，同步刷新畫面、記憶體與 2D 畫布
+        window.deleteNodeInline = function(key) {
+            if (!wordBank[key]) {
+                alert("該詞彙節點已被刪除或不存在！");
+                return;
+            }
+            
+            let confirmDelete = confirm(`⚠️ 確定要從 100維空間中將字詞 [${key}] 永久剔除刪除嗎？\n刪除後該詞將完全不參與任何矩陣點積與意圖路由運算。`);
+            if (confirmDelete) {
+                let wordName = wordBank[key].rawWord;
+                
+                // 1. 執行嚴格的記憶體永久抹除
+                delete wordBank[key];
+                
+                // 2. 輸出數學控制台反饋
+                mathConsole.innerText = `【🗑️ 資料庫單剔成功】已成功將節點 [${key}] (${wordName}) 從 100維隔離記憶庫中永久抹除。`;
+                
+                // 3. 強制同步重繪 UI 列表與 2D 投影畫布圓點
+                renderTable();
+                drawCanvas();
+            }
+        };
+
+        // 針對「AI 智能情境回覆功能」進行獨立的 1~5 分梯度更新（幾何解耦：限定只修正第 51 至 70 維度因果腦）
+        window.rateAIResponse = function(score) {
+            let reward = 0;
+            let description = "";
+
+            switch(score) {
+                case 5: reward = 0.0; description = "【5分】回覆完美，意圖因果軸凍結不變。"; break;
+                case 4: reward = 0.3; description = "【4分】可用，輕微拉近 51-70維意圖脈絡。"; break;
+                case 3: reward = -0.2; description = "【3分】相關但不須太近，微幅推開幾何距離。"; break;
+                case 2: reward = 0.8; description = "【2分】部分正確，中度修正後半段因果軸。"; break;
+                case 1: reward = 2.5; description = "【1分】完全錯誤！注入最大梯度力量劇烈物理大位移。"; break;
+            }
+
+            let mathLogs = `【AI 情境回覆獨立強化學習 (RLHF Update)】\n使用者評分: ${score} 分 | 狀態回應: ${description}\n梯度修正力量 (Reward): ${reward.toFixed(2)}\n\n`;
+
+            if (score === 5 || !currentAIResponseWord || !wordBank[currentAIResponseWord]) {
+                mathLogs += `【系統通知】參數凍結，本次意圖空間未發生座標改變。`;
+                mathConsole.innerText = mathLogs;
+                return;
+            }
+
+            let rItem = wordBank[currentAIResponseWord];
+            mathLogs += `● 正在精準調整回覆單字 "${rItem.rawWord}" 的第 51-70維意圖特徵軸：\n`;
+
+            let vecR = rItem.vec;
+            currentQueryWords.forEach(qKey => {
+                let qItem = wordBank[qKey];
+                if (!qItem || !qItem.vec) return;
+                let qVec = qItem.vec;
+                // 【幾何隔離修復】：梯度只准影響並優化第 51 至 70 維度的對話回覆因果空間
+                for (let i = 50; i < 70; i++) {
+                    vecR[i] += reward * (qVec[i] || 0);
+                }
+            });
+
+            // 重新執行 100維 L2 正規化
+            let sumSq = 0;
+            for(let i = 0; i < 100; i++) { sumSq += vecR[i] * vecR[i]; }
+            let len = Math.sqrt(sumSq) || 1;
+            rItem.vec = vecR.map(v => v / len);
+
+            mathLogs += `\n【優化完成】100維因果路由重塑成功！下一次輸入相同測資時，該回覆的觸發機率已遭動態改變。`;
+            mathConsole.innerText = mathLogs;
+
+            renderTable();
+            drawCanvas();
+        };
+
+        // 針對「AI 智能情境回覆」的專屬反向幾何引力硬定位演算法（期望詞飛向輸入端測資方）
+        window.hardInterventionReply = function() {
+            let userInput = prompt("【100維回覆引力干預】答案不OK嗎？請輸入你期望 AI 自動回覆的正確詞彙（需存在於語言 1 台語字典中）：");
+            if (!userInput) return;
+            
+            let cleanExpectedWord = userInput.trim();
+            let expectedKey = `L1_${cleanExpectedWord}`; 
+
+            if (!wordBank[expectedKey]) {
+                mathConsole.innerText = `【❌ 運算欄錯誤】幾何干預失敗！第一語言中不存在「${cleanExpectedWord}」這個期望回覆詞。請確認拼字或先增量加入它！`;
+                alert("運算欄錯誤！找不到該期望詞，請查看右側數學控制台。");
+                return;
+            }
+
+            if (currentQueryWords.length === 0) {
+                alert("找不到輸入的測資方，請重新輸入句子並點擊推算。");
+                return;
+            }
+            
+            let sourceQueryKey = currentQueryWords; 
+            let sourceQueryItem = wordBank[sourceQueryKey];
+            if (!sourceQueryItem || !sourceQueryItem.vec) {
+                alert("測資方資料結構毀損，請重新執行推算。");
+                return;
+            }
+            let sourceQueryVector = [...sourceQueryItem.vec]; 
+
+            let mathLogs = `【⚡ 強力 100維回覆引力定位運算過程】\n觸發回覆對齊規則：強迫期望回覆詞飛向輸入端測資方\n`;
+            mathLogs += `輸入測資方中心點: "${sourceQueryItem.rawWord}" ➔ 鎖定目標幾何座標。\n`;
+            mathLogs += `被干預期望回覆詞: "${cleanExpectedWord}" (屬於 第一語言)\n\n`;
+
+            let expectedItem = wordBank[expectedKey];
+            mathLogs += ` ➔ 正在強行將期望詞 [${expectedKey}] 的 100維特徵直接覆蓋：\n`;
+            mathLogs += `    原前 3維: [${expectedItem.vec.slice(0,3).map(v=>v.toFixed(2)).join(', ')}...]\n`;
+            
+            // 全 100 維度引力硬覆蓋
+            expectedItem.vec = [...sourceQueryVector];
+            expectedItem.weight = 1.6; 
+
+            mathLogs += `    現前 3維: [${expectedItem.vec.slice(0,3).map(v=>v.toFixed(2)).join(', ')}...] (已全維度精準吸附重合！)\n`;
+            mathLogs += `\n【引力干預成功】期望回覆詞 "${cleanExpectedWord}" 已在 100維空間中瞬間瞬移至你輸入的測資方 "${sourceQueryItem.rawWord}" 的座標上！`;
+            
+            mathConsole.innerText = mathLogs;
+            renderTable(); 
+            drawCanvas(); 
+        };
+
+        // 三語系幾何硬定位演算法（翻譯對齊方：期望詞飛向輸入端測資方）
+        window.hardIntervention = function(targetLangId) {
+            let userInput = prompt("【100維幾何引力干預】答案不OK嗎？請輸入你期望 AI 答出的正確詞彙：");
+            if (!userInput) return;
+            
+            let cleanExpectedWord = userInput.trim();
+            let expectedKey = `L${targetLangId}_${cleanExpectedWord}`;
+
+            if (!wordBank[expectedKey]) {
+                mathConsole.innerText = `【❌ 運算欄錯誤】幾何干預失敗！【語言 ${targetLangId}】中不存在「${cleanExpectedWord}」這個字詞或符號。請確認拼字或先增量加入它！`;
+                alert("運算欄錯誤！找不到該期望詞，請查看右側數學控制台。");
+                return;
+            }
+
+            if (currentQueryWords.length === 0) {
+                alert("找不到輸入的測資方，請重新輸入句子並點擊推算。");
+                return;
+            }
+            
+            let sourceQueryKey = currentQueryWords; 
+            let sourceQueryItem = wordBank[sourceQueryKey];
+            let sourceQueryVector = [...sourceQueryItem.vec]; 
+
+            let mathLogs = `【⚡ 強力 100維幾何引力硬定位運算過程】\n觸發引力校正規則：讓期望詞飛向測資方\n`;
+            mathLogs += `輸入測資方中心點: "${sourceQueryItem.rawWord}" ➔ 鎖定目標幾何座標。\n`;
+            mathLogs += `被干預期望詞: "${cleanExpectedWord}" (屬 語言 ${targetLangId})\n\n`;
+
+            let expectedItem = wordBank[expectedKey];
+            mathLogs += ` ➔ 正在強行將期望詞 [${expectedKey}] 的 100維特徵直接覆蓋：\n`;
+            mathLogs += `    原前 3維: [${expectedItem.vec.slice(0,3).map(v=>v.toFixed(2)).join(', ')}...]\n`;
+            
+            expectedItem.vec = [...sourceQueryVector];
+            expectedItem.weight = 1.5; 
+
+            mathLogs += `    現前 3維: [${expectedItem.vec.slice(0,3).map(v=>v.toFixed(2)).join(', ')}...] (已精準重合至測資方座標！)\n`;
+            mathLogs += `\n【引力干預成功】期望詞 "${cleanExpectedWord}" 已在 100維幾何空間中「瞬間飛奔」至你輸入的測資方 "${sourceQueryItem.rawWord}" 的座標上！`;
+            
+            mathConsole.innerText = mathLogs;
+            renderTable(); drawCanvas(); removeFeedbackBox(targetLangId); 
+        };
+
+        function removeFeedbackBox(targetLangId) {
+            let currentBoxes = multiLangFeedbackArea.getElementsByClassName('output-box');
+            if (currentBoxes.length <= 1) {
+                outputContainer.style.display = 'none';
+            } else {
+                for (let i = 0; i < currentBoxes.length; i++) {
+                    if (currentBoxes[i].innerHTML.includes(`【語言 ${targetLangId}】`)) {
+                        multiLangFeedbackArea.removeChild(currentBoxes[i]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        exportBtn.addEventListener('click', () => {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF唯一雜湊鍵,原始字詞,語言組別,權重常數,";
+            for(let i=1; i<=100; i++) csvContent += `維度_${i},`;
+            csvContent += "\n";
+            for(let key in wordBank) {
+                let item = wordBank[key];
+                csvContent += `${key},${item.rawWord},語言 ${item.langId},${item.weight.toFixed(4)},${item.vec.map(v => v.toFixed(6)).join(',')}\n`;
+            }
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "google_sheets_100d_decoupled_cleaned.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
+
