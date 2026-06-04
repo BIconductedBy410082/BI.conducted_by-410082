@@ -49,14 +49,14 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .logo {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: 1px;
         }
-        /* 首頁主視覺區 (第一張投影片) */
+        /* 首頁主視覺區 */
         .hero {
             height: 100vh;
             display: flex;
@@ -69,7 +69,7 @@
             z-index: 10;
         }
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 0.5rem;
@@ -78,9 +78,9 @@
             -webkit-text-fill-color: transparent;
         }
         .hero .subtitle {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #94a3b8;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             font-weight: 500;
         }
         /* Let's get start 按鈕 */
@@ -118,41 +118,20 @@
             40% { transform: translate(-50%, -8px); }
             60% { transform: translate(-50%, -4px); }
         }
-        /* 內容呈現區 (第二張投影片) */
+        /* 內容呈現區 */
         .content-section {
-            padding: 8rem 10%;
+            padding: 8rem 10% 4rem 10%;
             background-color: #070a12;
             position: relative;
             z-index: 10;
             border-top: 1px solid rgba(255, 255, 255, 0.02);
-        }
-        .section-header {
-            text-align: center;
-            margin-bottom: 5rem;
-        }
-        .section-header h2 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #ffffff;
-            position: relative;
-            display: inline-block;
-        }
-        .section-header h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 3px;
-            background: #38bdf8;
-            border-radius: 2px;
         }
         /* 兩欄排版卡片 */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 3rem;
+            margin-bottom: 6rem;
         }
         .card {
             background: rgba(15, 23, 42, 0.6);
@@ -173,20 +152,28 @@
             font-weight: 700;
             border-left: 4px solid #7c3aed;
             padding-left: 0.8rem;
+            line-height: 1.4;
         }
         .card p {
             color: #94a3b8;
             font-size: 1.05rem;
             line-height: 1.8;
             text-align: justify;
-            margin-bottom: 1rem;
+        }
+        /* 頁尾 */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            letter-spacing: 1px;
         }
         /* 響應式 RWD 調整 */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.4rem; }
-            .hero .subtitle { font-size: 1.3rem; }
+            .hero h1 { font-size: 2.8rem; }
             header { padding: 1.2rem 5%; }
-            .content-section { padding: 6rem 5%; }
+            .content-section { padding: 6rem 5% 2rem 5%; }
         }
     </style>
 </head>
@@ -195,41 +182,43 @@
     <!-- 背景動態漣漪效果 Canvas -->
     <canvas id="ripple-canvas"></canvas>
 
-    <!-- 頂部導航欄 -->
+    <!-- 頂部導航欄 (僅保留 BI Logo) -->
     <header>
-        <div class="logo">BI STUDENT TRAINING SYSTEM</div>
+        <div class="logo">BI</div>
     </header>
 
-    <!-- 1. 首頁主視覺區 (Slide 1) -->
+    <!-- 1. 首頁主視覺區 (第一張投影片) -->
     <section class="hero">
-        <h1>學生訓練系統</h1>
-        <div class="subtitle">啟發數據領袖</div>
+        <h1>BI</h1>
+        <div class="subtitle">學生訓練系統 V1.0</div>
         
         <!-- Let's get start 按鈕 -->
-        <a href="#content" class="btn-started">Let's Get Start</a>
+        <a href="#content" class="btn-started">Let's get start</a>
 
         <!-- 下滑提示 -->
-        <a href="#content" class="scroll-down">↓ 往下滾動查看內容</a>
+        <a href="#content" class="scroll-down">↓ 往下滾動</a>
     </section>
 
-    <!-- 2. 內容呈現區 (Slide 2) -->
+    <!-- 2. 內容呈現區 (第二張投影片) -->
     <section id="content" class="content-section">
-        <div class="section-header">
-            <h2>資料來源均取教育部辭典與參考書</h2>
-        </div>
         <div class="grid-container">
             <!-- 區塊 1 -->
             <div class="card">
-                <h3>針對翻譯的題型取材教育部辭典龐大資庫</h3>
-                <p>題目課文採樣預計含誇國小，國中，高中，減少錯誤率。</p>
+                <h3>資料來源均取教育部辭典與參考書</h3>
+                <p>針對翻譯的題型取材教育部辭典龐大資庫、題目課文採樣預計含誇國小，國中，高中，減少錯誤率。</p>
             </div>
             
             <!-- 區塊 2 -->
             <div class="card">
-                <h3>提升數據素養</h3>
-                <p>不僅止於散亂數據，學生親試，採詞多元，資料定位多次確認。</p>
+                <h3>不同於傳統</h3>
+                <p>不追隨當代多維vector浪潮，作者發想，天馬行空兌現</p>
             </div>
         </div>
+
+        <!-- 頁尾 -->
+        <footer>
+            吳秉洋發想 X gemini協助
+        </footer>
     </section>
 
     <!-- JavaScript：處理滑鼠與自動背景動態 Canvas 漣漪特效 -->
