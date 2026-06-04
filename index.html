@@ -72,26 +72,25 @@
             font-size: 7rem; /* 超大 BI 字體 */
             font-weight: 800;
             letter-spacing: 4px;
-            margin-bottom: 1.5rem;
-            /* 改為與 Logo 相同的漸層色 */
+            margin-bottom: 1rem;
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* 藍色圓形版本號徽章 */
+        /* 精緻小巧的藍色外框版本徽章 */
         .version-badge {
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            width: 56px;
-            height: 56px;
-            background-color: #0076ff;
-            color: #ffffff;
-            font-size: 0.95rem;
+            padding: 0.35rem 1rem;
+            border: 1.5px solid #38bdf8; /* 藍色系外框 */
+            color: #38bdf8; /* 文字與外框同色 */
+            font-size: 0.8rem; /* 字體縮小 */
             font-weight: 700;
-            border-radius: 50%;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 0 20px rgba(0, 118, 255, 0.4);
+            border-radius: 50px;
+            margin-bottom: 3rem;
+            background: rgba(56, 189, 248, 0.05); /* 淡淡的藍色透明背景襯托 */
+            letter-spacing: 0.5px;
         }
         /* Let's get start 按鈕 */
         .btn-started {
@@ -192,16 +191,16 @@
     <!-- 背景動態漣漪效果 Canvas -->
     <canvas id="ripple-canvas"></canvas>
 
-    <!-- 頂部導航欄 -->
+    <!-- 頂部導航欄 (純淨 BI) -->
     <header>
-        <div class="logo">BI:語言訓練模型</div>
+        <div class="logo">BI</div>
     </header>
 
     <!-- 1. 首頁主視覺區 -->
     <section class="hero">
         <h1>BI</h1>
         
-        <!-- 藍色圓形版本展示 -->
+        <!-- 小巧藍色系外框版本設計 -->
         <div class="version-badge">V1.0</div>
         
         <!-- Let's get start 按鈕 -->
@@ -268,12 +267,10 @@
             }
         }
 
-        // 滑鼠點擊觸發漣漪
         window.addEventListener('click', (e) => {
             ripples.push(new Ripple(e.clientX, e.clientY));
         });
 
-        // 滑鼠移動觸發細微漣漪
         let moveTrack = 0;
         window.addEventListener('mousemove', (e) => {
             moveTrack++;
@@ -282,14 +279,12 @@
             }
         });
 
-        // 背景自動定時隨機漣漪（保持網頁動態感）
         setInterval(() => {
             const randomX = Math.random() * canvas.width;
             const randomY = Math.random() * canvas.height;
             ripples.push(new Ripple(randomX, randomY));
         }, 3000);
 
-        // 渲染迴圈
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ripples.forEach((ripple, index) => {
