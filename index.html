@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Student Training System</title>
+    <title>BI</title>
     <!-- 引入高品質字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -69,19 +69,20 @@
             z-index: 10;
         }
         .hero h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 6rem; /* 放大 BI 字體大小 */
+            font-weight: 800;
+            letter-spacing: 4px;
             margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #ffffff, #e2e8f0);
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .hero .subtitle {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: #94a3b8;
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
             font-weight: 500;
+            letter-spacing: 2px;
         }
         /* Let's get start 按鈕 */
         .btn-started {
@@ -171,7 +172,7 @@
         }
         /* 響應式 RWD 調整 */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.8rem; }
+            .hero h1 { font-size: 4rem; }
             header { padding: 1.2rem 5%; }
             .content-section { padding: 6rem 5% 2rem 5%; }
         }
@@ -187,10 +188,10 @@
         <div class="logo">BI</div>
     </header>
 
-    <!-- 1. 首頁主視覺區 (第一張投影片) -->
+    <!-- 1. 首頁主視覺區 -->
     <section class="hero">
         <h1>BI</h1>
-        <div class="subtitle">學生訓練系統 V1.0</div>
+        <div class="subtitle">V1.0</div>
         
         <!-- Let's get start 按鈕 -->
         <a href="#content" class="btn-started">Let's get start</a>
@@ -199,7 +200,7 @@
         <a href="#content" class="scroll-down">↓ 往下滾動</a>
     </section>
 
-    <!-- 2. 內容呈現區 (第二張投影片) -->
+    <!-- 2. 內容呈現區 -->
     <section id="content" class="content-section">
         <div class="grid-container">
             <!-- 區塊 1 -->
