@@ -31,7 +31,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            pointer-events: none; /* 讓點擊與移動穿透 */
+            pointer-events: none;
         }
         /* 導航欄 */
         header {
@@ -69,7 +69,7 @@
             z-index: 10;
         }
         .hero h1 {
-            font-size: 7rem; /* 超大 BI 字體 */
+            font-size: 7rem;
             font-weight: 800;
             letter-spacing: 4px;
             margin-bottom: 1rem;
@@ -77,19 +77,19 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* 細字、細框、中間完全透明的版本徽章 */
+        /* 透明、細字細框版本徽章 */
         .version-badge {
             display: inline-flex;
             justify-content: center;
             align-items: center;
             padding: 0.25rem 0.85rem;
-            border: 1px solid rgba(56, 189, 248, 0.6); /* 極細藍色系外框 */
-            color: rgba(56, 189, 248, 0.9); /* 細緻藍色文字 */
-            font-size: 0.75rem; /* 字體縮小 */
-            font-weight: 200; /* 極細字體權重 */
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            color: rgba(56, 189, 248, 0.9);
+            font-size: 0.75rem;
+            font-weight: 200;
             border-radius: 50px;
             margin-bottom: 3rem;
-            background: transparent; /* 完全透明不吃背景 */
+            background: transparent;
             letter-spacing: 1px;
         }
         /* Let's get start 按鈕 */
@@ -127,6 +127,135 @@
             40% { transform: translate(-50%, -8px); }
             60% { transform: translate(-50%, -4px); }
         }
+
+        /* ==========================================
+           AI 對話視窗區 (預設隱藏，點擊按鈕後彈出)
+           ========================================== */
+        .chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 10, 18, 0.95);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            backdrop-filter: blur(20px);
+        }
+        .chat-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .chat-container {
+            width: 90%;
+            max-width: 650px;
+            height: 80vh;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        /* 對話框標頭 */
+        .chat-header {
+            padding: 1.2rem 1.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-title {
+            font-weight: 600;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .close-chat {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-chat:hover {
+            color: #ef4444;
+        }
+        /* 訊息對話紀錄區 */
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message {
+            max-width: 80%;
+            padding: 0.85rem 1.2rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+        .message.user {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .message.ai {
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* 輸入區塊 */
+        .chat-input-area {
+            padding: 1.2rem;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 0.75rem;
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.85rem 1.2rem;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #38bdf8;
+        }
+        .btn-send {
+            background: #38bdf8;
+            color: #0b0f19;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-send:hover {
+            background: #0ea5e9;
+        }
+
         /* 內容呈現區 */
         .content-section {
             padding: 8rem 10% 4rem 10%;
@@ -193,7 +322,7 @@
 
     <!-- 頂部導航欄 -->
     <header>
-        <div class="logo">BI語言系統</div>
+        <div class="logo">BI</div>
     </header>
 
     <!-- 1. 首頁主視覺區 -->
@@ -203,12 +332,31 @@
         <!-- 透明、細字細框版本設計 -->
         <div class="version-badge">V1.0</div>
         
-        <!-- Let's get start 按鈕 -->
-        <a href="#content" class="btn-started">Let's get start</a>
+        <!-- Let's get start 按鈕 (綁定開啟對話框事件) -->
+        <a href="javascript:void(0)" class="btn-started" id="start-btn">Let's get start</a>
 
         <!-- 下滑提示 -->
         <a href="#content" class="scroll-down">↓ 往下滾動</a>
     </section>
+
+    <!-- ==========================================
+       AI 對話視窗 HTML 架構
+       ========================================== */ -->
+    <div class="chat-overlay" id="chat-overlay">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title"><span>🤖</span> BI AI Studio</div>
+                <button class="close-chat" id="close-btn">&times;</button>
+            </div>
+            <!-- 對話訊息渲染區 -->
+            <div class="chat-messages" id="chat-messages"></div>
+            <!-- 文字輸入發送區 -->
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-input" placeholder="輸入訊息..." autocomplete="off">
+                <button class="btn-send" id="send-btn">發送</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 2. 內容呈現區 -->
     <section id="content" class="content-section">
@@ -232,8 +380,107 @@
         </footer>
     </section>
 
-    <!-- JavaScript：處理滑鼠與自動背景動態 Canvas 漣漪特效 -->
+    <!-- JavaScript：處理基礎UI、LocalStorage 空間與留空執行邏輯 -->
     <script>
+        /* ==========================================
+           1. LocalStorage 對話紀錄初始化空間與讀取
+           ========================================== */
+        const STORAGE_KEY = 'BI_CHAT_HISTORY';
+        
+        // 從 LocalStorage 取得歷史紀錄，若無則初始化為空陣列
+        let chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+        // DOM 元素選取
+        const startBtn = document.getElementById('start-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const chatOverlay = document.getElementById('chat-overlay');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // 渲染歷史對話到畫面上
+        function renderHistory() {
+            chatMessages.innerHTML = '';
+            chatHistory.forEach(msg => {
+                appendMessageToUI(msg.sender, msg.text);
+            });
+            scrollToBottom();
+        }
+
+        // 將訊息加入畫面的函式
+        function appendMessageToUI(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', sender); // sender 可為 'user' 或 'ai'
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        // 滾動到最底部
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 儲存目前對話到 LocalStorage
+        function saveToStorage(sender, text) {
+            chatHistory.push({ sender, text, timestamp: new Date().getTime() });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+        }
+
+        /* ==========================================
+           2. UI 互動事件 (開啟、關閉、發送)
+           ========================================== */
+        
+        // 按下 Let's get start 開啟對話框
+        startBtn.addEventListener('click', () => {
+            chatOverlay.classList.add('active');
+            renderHistory(); // 打開時加載歷史紀錄
+        });
+
+        // 關閉對話框
+        closeBtn.addEventListener('click', () => {
+            chatOverlay.classList.remove('active');
+        });
+
+        // 發送訊息按鈕事件
+        sendBtn.addEventListener('click', handleUserSendMessage);
+        // 綁定 Enter 鍵發送
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserSendMessage();
+        });
+
+        function handleUserSendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // 1. 顯示使用者訊息並存入 LocalStorage
+            appendMessageToUI('user', text);
+            saveToStorage('user', text);
+            chatInput.value = '';
+
+            // 2. 觸發 AI 回覆執行空間
+            // 這裡呼叫下方留給您的判斷與執行函式
+            executeAIResponseLogic(text);
+        }
+
+        /* ==========================================
+           3. 【留空區】判斷與執行交由您等一下寫的程式來填入
+           ========================================== */
+        function executeAIResponseLogic(userMessage) {
+            console.log("接收到使用者訊息，等待載入您的判斷與執行邏輯: ", userMessage);
+            
+            /* 
+               💡 提示：您等一下寫的程式可以在這裡：
+               1. 判斷 userMessage 的關鍵字或丟給 API 處理。
+               2. 得到結果後，呼叫：
+                  appendMessageToUI('ai', "您的AI回覆內容");
+                  saveToStorage('ai', "您的AI回覆內容");
+            */
+        }
+
+        /* ==========================================
+           4. 背景動態漣漪效果 Canvas 邏輯 (保持原樣)
+           ========================================== */
         const canvas = document.getElementById('ripple-canvas');
         const ctx = canvas.getContext('2d');
         let ripples = [];
@@ -268,11 +515,14 @@
         }
 
         window.addEventListener('click', (e) => {
+            // 如果點擊是在對話框內，不觸發背景漣漪以免干擾視覺
+            if (chatOverlay.classList.contains('active') && e.target.closest('.chat-container')) return;
             ripples.push(new Ripple(e.clientX, e.clientY));
         });
 
         let moveTrack = 0;
         window.addEventListener('mousemove', (e) => {
+            if (chatOverlay.classList.contains('active')) return;
             moveTrack++;
             if (moveTrack % 12 === 0) {
                 ripples.push(new Ripple(e.clientX, e.clientY));
@@ -280,6 +530,7 @@
         });
 
         setInterval(() => {
+            if (chatOverlay.classList.contains('active')) return;
             const randomX = Math.random() * canvas.width;
             const randomY = Math.random() * canvas.height;
             ripples.push(new Ripple(randomX, randomY));
