@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI 學生訓練系統</title>
+    <title>BI Student Training System</title>
     <!-- 引入高品質字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <style> 
+    <style>
         /* 基礎設置與重設 */
         * {
             margin: 0;
@@ -15,18 +14,15 @@
             box-sizing: border-box;
             font-family: 'Poppins', 'Noto Sans TC', sans-serif;
         }
-
         html {
             scroll-behavior: smooth;
         }
-
         body {
             background-color: #0b0f19;
             color: #f1f5f9;
             overflow-x: hidden;
             position: relative;
         }
-
         /* 動態漣漪效果 Canvas */
         #ripple-canvas {
             position: fixed;
@@ -35,9 +31,8 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            pointer-events: none; /* 讓點擊穿透 */
+            pointer-events: none; /* 讓點擊與移動穿透 */
         }
-
         /* 導航欄 */
         header {
             position: fixed;
@@ -53,7 +48,6 @@
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-
         .logo {
             font-size: 1.3rem;
             font-weight: 700;
@@ -62,20 +56,7 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: 1px;
         }
-
-        nav a {
-            color: #94a3b8;
-            text-decoration: none;
-            margin-left: 2rem;
-            font-size: 0.95rem;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: #38bdf8;
-        }
-
-        /* 首頁主視覺區 (Hero Section) */
+        /* 首頁主視覺區 (第一張投影片) */
         .hero {
             height: 100vh;
             display: flex;
@@ -87,48 +68,39 @@
             position: relative;
             z-index: 10;
         }
-
         .hero h1 {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 700;
             letter-spacing: 2px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(to right, #ffffff, #e2e8f0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        /* Let's get started 按鈕 - 置於 BI 版本下方 */
+        .hero .subtitle {
+            font-size: 1.8rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+        /* Let's get start 按鈕 */
         .btn-started {
             display: inline-block;
-            padding: 0.9rem 2.8rem;
-            font-size: 1.05rem;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #ffffff;
             text-decoration: none;
             background: linear-gradient(135deg, #2563eb, #7c3aed);
             border-radius: 50px;
-            margin-top: 0.5rem;
-            margin-bottom: 2.5rem;
             box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
         }
-
         .btn-started:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6);
         }
-
-        .hero p {
-            font-size: 1.15rem;
-            color: #94a3b8;
-            max-width: 700px;
-            line-height: 1.8;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 1.5rem;
-        }
-
         /* 下滑提示 */
         .scroll-down {
             position: absolute;
@@ -141,27 +113,23 @@
             text-decoration: none;
             animation: bounce 2s infinite;
         }
-
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
             40% { transform: translate(-50%, -8px); }
             60% { transform: translate(-50%, -4px); }
         }
-
-        /* 系統介紹區 (Introduction Section) */
-        .intro-section {
+        /* 內容呈現區 (第二張投影片) */
+        .content-section {
             padding: 8rem 10%;
             background-color: #070a12;
             position: relative;
             z-index: 10;
             border-top: 1px solid rgba(255, 255, 255, 0.02);
         }
-
         .section-header {
             text-align: center;
             margin-bottom: 5rem;
         }
-
         .section-header h2 {
             font-size: 2.2rem;
             font-weight: 700;
@@ -169,7 +137,6 @@
             position: relative;
             display: inline-block;
         }
-
         .section-header h2::after {
             content: '';
             position: absolute;
@@ -181,55 +148,45 @@
             background: #38bdf8;
             border-radius: 2px;
         }
-
-        /* 三欄簡報原稿卡片 */
+        /* 兩欄排版卡片 */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
         }
-
         .card {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 3rem 2rem;
+            padding: 3rem 2.5rem;
             border-radius: 16px;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s, border-color 0.3s;
             backdrop-filter: blur(8px);
         }
-
         .card:hover {
             transform: translateY(-5px);
             border-color: rgba(56, 189, 248, 0.25);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
-        .card-icon {
-            font-size: 2rem;
-            margin-bottom: 1.2rem;
-        }
-
         .card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1.2rem;
-            color: #f8fafc;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            color: #38bdf8;
             font-weight: 700;
+            border-left: 4px solid #7c3aed;
+            padding-left: 0.8rem;
         }
-
         .card p {
             color: #94a3b8;
-            font-size: 0.95rem;
-            line-height: 1.7;
+            font-size: 1.05rem;
+            line-height: 1.8;
             text-align: justify;
+            margin-bottom: 1rem;
         }
-
         /* 響應式 RWD 調整 */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.6rem; }
-            .hero p { font-size: 1rem; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero .subtitle { font-size: 1.3rem; }
             header { padding: 1.2rem 5%; }
-            nav { display: none; }
-            .intro-section { padding: 6rem 5%; }
+            .content-section { padding: 6rem 5%; }
         }
     </style>
 </head>
@@ -240,61 +197,45 @@
 
     <!-- 頂部導航欄 -->
     <header>
-        <div class="logo">BI STUDENT SYSTEM</div>
-        <nav>
-            <a href="#intro">系統介紹</a>
-        </nav>
+        <div class="logo">BI STUDENT TRAINING SYSTEM</div>
     </header>
 
-    <!-- 1. 首頁主視覺區 (Hero Section) -->
+    <!-- 1. 首頁主視覺區 (Slide 1) -->
     <section class="hero">
-        <h1>BI 學生訓練系統</h1>
+        <h1>學生訓練系統</h1>
+        <div class="subtitle">啟發數據領袖</div>
         
-        <!-- Let's get started 按鈕 (精確置於標題下方) -->
-        <a href="#intro" class="btn-started">Let's Get Started</a>
-        
-        <!-- 原稿核心字詞整合之副標題 -->
-        <p>多元採詞、資料定位、翻譯題型、核心指導。<br>結合教育部辭典龐大資料庫，精準對接國小、國中、高中學段。</p>
-        
+        <!-- Let's get start 按鈕 -->
+        <a href="#content" class="btn-started">Let's Get Start</a>
+
         <!-- 下滑提示 -->
-        <a href="#intro" class="scroll-down">↓ 往下滾動查看介紹</a>
+        <a href="#content" class="scroll-down">↓ 往下滾動查看內容</a>
     </section>
 
-    <!-- 2. 系統介紹區 (Introduction Section) -->
-    <section id="intro" class="intro-section">
+    <!-- 2. 內容呈現區 (Slide 2) -->
+    <section id="content" class="content-section">
         <div class="section-header">
-            <h2>系統核心介紹</h2>
+            <h2>資料來源均取教育部辭典與參考書</h2>
         </div>
-
         <div class="grid-container">
-            <!-- 區塊 1：原稿內容 -->
+            <!-- 區塊 1 -->
             <div class="card">
-                <div class="card-icon">⚡</div>
-                <h3>權威取材，精準學習</h3>
-                <p>嚴選教育部辭典龐大資料庫，針對翻譯題型進行深度取材。大幅降低傳統學習的錯誤率，給予學生最標準、最具權威性的核心指導。</p>
+                <h3>針對翻譯的題型取材教育部辭典龐大資庫</h3>
+                <p>題目課文採樣預計含誇國小，國中，高中，減少錯誤率。</p>
             </div>
-
-            <!-- 區塊 2：原稿內容 -->
+            
+            <!-- 區塊 2 -->
             <div class="card">
-                <div class="card-icon">🎯</div>
-                <h3>跨學段精準定位</h3>
-                <p>課文與訓練採樣精準涵蓋國小、國中至高中。經過嚴格的資料定位與難易度校準，確保孩子在升學與成長的每個階段完美銜接。</p>
-            </div>
-
-            <!-- 區塊 3：原稿內容 -->
-            <div class="card">
-                <div class="card-icon">📊</div>
-                <h3>培養核心數據素養</h3>
-                <p>擺脫死記硬背！透過系統性的多元採詞與親自動手嘗試，讓學生在練習的過程中，潛移默化地建立頂尖領袖必備的結構化數據思維。</p>
+                <h3>提升數據素養</h3>
+                <p>不僅止於散亂數據，學生親試，採詞多元，資料定位多次確認。</p>
             </div>
         </div>
     </section>
 
-    <!-- JavaScript：處理動態 Canvas 漣漪特效 -->
+    <!-- JavaScript：處理滑鼠與自動背景動態 Canvas 漣漪特效 -->
     <script>
         const canvas = document.getElementById('ripple-canvas');
         const ctx = canvas.getContext('2d');
-
         let ripples = [];
 
         function resizeCanvas() {
@@ -309,20 +250,17 @@
                 this.x = x;
                 this.y = y;
                 this.radius = 0;
-                this.maxRadius = Math.random() * 80 + 140; 
+                this.maxRadius = Math.random() * 80 + 140;
                 this.opacity = 1;
-                this.speed = Math.random() * 1.5 + 2; 
+                this.speed = Math.random() * 1.5 + 2;
             }
-
             update() {
                 this.radius += this.speed;
                 this.opacity = 1 - (this.radius / this.maxRadius);
             }
-
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                // 使用高級感深藍紫色調
                 ctx.strokeStyle = `rgba(129, 140, 248, ${this.opacity * 0.25})`;
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
@@ -334,16 +272,16 @@
             ripples.push(new Ripple(e.clientX, e.clientY));
         });
 
-        // 滑鼠移動微量觸發，增加網頁靈動感
+        // 滑鼠移動觸發細微漣漪
         let moveTrack = 0;
         window.addEventListener('mousemove', (e) => {
             moveTrack++;
-            if (moveTrack % 10 === 0) { 
+            if (moveTrack % 12 === 0) {
                 ripples.push(new Ripple(e.clientX, e.clientY));
             }
         });
 
-        // 背景自動定時隨機漣漪（避免靜止時畫面太單調）
+        // 背景自動定時隨機漣漪（保持網頁動態感）
         setInterval(() => {
             const randomX = Math.random() * canvas.width;
             const randomY = Math.random() * canvas.height;
@@ -353,16 +291,13 @@
         // 渲染迴圈
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             ripples.forEach((ripple, index) => {
                 ripple.update();
                 ripple.draw();
-
                 if (ripple.opacity <= 0) {
                     ripples.splice(index, 1);
                 }
             });
-
             requestAnimationFrame(animate);
         }
         animate();
