@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BI</title>
     <!-- 引入高品質字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Poppins:wght@200;400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 基礎設置與重設 */
         * {
@@ -77,20 +77,20 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* 精緻小巧的藍色外框版本徽章 */
+        /* 細字、細框、中間完全透明的版本徽章 */
         .version-badge {
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            padding: 0.35rem 1rem;
-            border: 1.5px solid #38bdf8; /* 藍色系外框 */
-            color: #38bdf8; /* 文字與外框同色 */
-            font-size: 0.8rem; /* 字體縮小 */
-            font-weight: 700;
+            padding: 0.25rem 0.85rem;
+            border: 1px solid rgba(56, 189, 248, 0.6); /* 極細藍色系外框 */
+            color: rgba(56, 189, 248, 0.9); /* 細緻藍色文字 */
+            font-size: 0.75rem; /* 字體縮小 */
+            font-weight: 200; /* 極細字體權重 */
             border-radius: 50px;
             margin-bottom: 3rem;
-            background: rgba(56, 189, 248, 0.05); /* 淡淡的藍色透明背景襯托 */
-            letter-spacing: 0.5px;
+            background: transparent; /* 完全透明不吃背景 */
+            letter-spacing: 1px;
         }
         /* Let's get start 按鈕 */
         .btn-started {
@@ -191,7 +191,7 @@
     <!-- 背景動態漣漪效果 Canvas -->
     <canvas id="ripple-canvas"></canvas>
 
-    <!-- 頂部導航欄 (純淨 BI) -->
+    <!-- 頂部導航欄 -->
     <header>
         <div class="logo">BI</div>
     </header>
@@ -200,7 +200,7 @@
     <section class="hero">
         <h1>BI</h1>
         
-        <!-- 小巧藍色系外框版本設計 -->
+        <!-- 透明、細字細框版本設計 -->
         <div class="version-badge">V1.0</div>
         
         <!-- Let's get start 按鈕 -->
