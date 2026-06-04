@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI 學生訓練系統：啟發數據領袖</title>
+    <!-- 引入 Google Fonts 提升質感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 基礎樣式重設 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景畫布（動態漣漪效果專用） */
+        #ripple-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* 讓點擊穿透到下方的網頁元素 */
+        }
+
+        /* 導航欄 */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #38bdf8;
+        }
+
+        /* 1. 首頁主視覺區 (Hero Section) */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-tag {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        /* Let's Get Started 按鈕 */
+        .btn-started {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-started:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.6);
+        }
+
+        /* 下滑提示箭頭 */
+        .scroll-down {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64748b;
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -10px); }
+            60% { transform: translate(-50%, -5px); }
+        }
+
+        /* 2. 系統介紹區 (Introduction Section) */
+        .intro-section {
+            padding: 8rem 10% 10rem 10%;
+            background-color: #0b0f19;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .section-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        /* 三欄卡片佈局 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            transition: transform 0.3s, border-color 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+
+        .card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* 響應式 RWD 調整 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.3rem; }
+            .hero p { font-size: 1rem; }
+            header { padding: 1.5rem 5%; }
+            nav { display: none; } /* 行動端簡化隱藏選單 */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景動態漣漪效果 Canvas -->
+    <canvas id="ripple-canvas"></canvas>
+
+    <!-- 頂部導航欄 -->
+    <header>
+        <div class="logo">BI STUDENT SYSTEM</div>
+        <nav>
+            <a href="#intro">核心介紹</a>
+            <a href="#intro">訓練特色</a>
+            <a href="#intro">聯絡我們</a>
+        </nav>
+    </header>
+
+    <!-- 1. 首頁主視覺區 -->
+    <section class="hero">
+        <div class="hero-tag">BI 學生訓練系統</div>
+        <h1>啟發未來的數據領袖</h1>
+        <p>結合教育部權威辭典數據庫，打造跨國小、國中、高中的全方位數據與翻譯訓練系統，讓孩子在邏輯與數據中看見未來。</p>
+        
+        <!-- Let's Get Started 按鈕 -->
+        <a href="#intro" class="btn-started">Let's Get Started</a>
+
+        <!-- 往下滑動提示 -->
+        <a href="#intro" class="scroll-down">↓ 滾動探索更多</a>
+    </section>
+
+    <!-- 2. 系統介紹區 -->
+    <section id="intro" class="intro-section">
+        <div class="section-header">
+            <h2>三大核心系統架構</h2>
+            <p>拒絕零碎資訊，用結構化邏輯引導孩子精準學習</p>
+        </div>
+
+        <div class="grid-container">
+            <!-- 卡片 1 -->
+            <div class="card">
+                <div class="card-icon" style="color: #38bdf8;">📚</div>
+                <h3>權威取材，精準學習</h3>
+                <p>嚴選教育部辭典龐大資料庫，針對翻譯題型進行深度取材。大幅降低傳統學習的錯誤率，給予學生最標準、最具權威性的核心指導。</p>
+            </div>
+
+            <!-- 卡片 2 -->
+            <div class="card">
+                <div class="card-icon" style="color: #a78bfa;">🎯</div>
+                <h3>跨學段精準定位</h3>
+                <p>課文與訓練採樣精準涵蓋國小、國中至高中。經過嚴格的資料定位與難易度校準，確保孩子在升學與成長的每個階段完美銜接。</p>
+            </div>
+
+            <!-- 卡片 3 -->
+            <div class="card">
+                <div class="card-icon" style="color: #34d399;">📊</div>
+                <h3>培養核心數據素養</h3>
+                <p>擺脫死記硬背！透過系統性的多元採詞與親自動手嘗試，讓學生在練習的過程中，潛移默化地建立頂尖領袖必備的結構化數據思維。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript：處理背景動態漣漪效果與基礎互動 -->
+    <script>
+        const canvas = document.getElementById('ripple-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let ripples = [];
+
+        // 調整畫布大小與視窗一致
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 漣漪物件建構子
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = Math.random() * 100 + 150; // 漣漪擴散的最大半徑
+                this.opacity = 1;
+                this.speed = Math.random() * 2 + 2; // 擴散速度
+            }
+
+            update() {
+                this.radius += this.speed;
+                // 隨著擴散半徑變大，透明度隨之淡出
+                this.opacity = 1 - (this.radius / this.maxRadius);
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                // 使用柔和的藍紫色調科技感漣漪
+                ctx.strokeStyle = `rgba(99, 102, 241, ${this.opacity * 0.3})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // 監聽滑鼠點擊事件產生漣漪
+        window.addEventListener('click', (e) => {
+            ripples.push(new Ripple(e.clientX, e.clientY));
+        });
+
+        // 監聽滑鼠移動事件（淡淡的微量漣漪，增加互動感）
+        let moveCount = 0;
+        window.addEventListener('mousemove', (e) => {
+            moveCount++;
+            if (moveCount % 8 === 0) { // 限制密度，避免畫面太花
+                ripples.push(new Ripple(e.clientX, e.clientY));
+            }
+        });
+
+        // 自動定時產生微弱隨機漣漪（背景不無聊）
+        setInterval(() => {
+            const randomX = Math.random() * canvas.width;
+            const randomY = Math.random() * canvas.height;
+            ripples.push(new Ripple(randomX, randomY));
+        }, 2500);
+
+        // 動態渲染迴圈 (Animation Loop)
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ripples.forEach((ripple, index) => {
+                ripple.update();
+                ripple.draw();
+
+                // 當完全透明或超出半徑時從陣列移除
+                if (ripple.opacity <= 0) {
+                    ripples.splice(index, 1);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
