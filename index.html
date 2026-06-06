@@ -1,1 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI - Semantic Interference Field Engine (Quantum Tunneling & Gauge Core)</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 全域變數定義：暗藍紫色系與霓虹光效 */
+        :root {
+            --bg-main: #030712;
+            --bg-card: #0b0f19;
+            --primary: #c084fc;
+            --secondary: #38bdf8;
+            --accent: #e879f9;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(139, 92, 246, 0.2);
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* 標頭與密碼區域 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        header h1 {
+            font-size: 28px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .crypto-lock {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .crypto-lock input {
+            background: #111827;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            text-align: center;
+            font-family: monospace;
+        }
+        .btn {
+            background: linear-gradient(135deg, #6d28d9, #4c1d95);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+        }
+
+        /* 主要佈局 */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* 預設普通用戶看全幅對話框 */
+            gap: 20px;
+            flex-grow: 1;
+        }
+        /* 管理員解鎖後的佈局轉變 */
+        .main-grid.admin-layout {
+            grid-template-columns: 350px 1fr;
+        }
+
+        /* 控制台區域 */
+        .sidebar {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel-title {
+            font-size: 18px;
+            color: var(--secondary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group label { font-size: 14px; color: var(--text-muted); }
+        .file-input-wrapper {
+            position: relative;
+            border: 2px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #030712;
+        }
+        .file-input-wrapper input {
+            position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;
+        }
+
+        /* 嚴格的後台隱藏控制 */
+        .admin-only {
+            display: none !important;
+        }
+
+        /* 用戶識別狀態條 */
+        .user-badge {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: monospace;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>BI <span style="font-size:14px; color:var(--secondary);">Semantic Interference Field Engine</span></h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div class="user-badge" id="uid-display">
+            <i class="fa-solid fa-fingerprint"></i> UID: <span id="user-uid-token">Initializing...</span>
+        </div>
+        <div class="crypto-lock">
+            <i class="fa-solid fa-key" id="lock-icon" style="color: var(--danger);"></i>
+            <input type="password" id="admin-password" placeholder="管理員安全認證" />
+            <button class="btn" onclick="BI_Engine.verifyPassword()">驗證解鎖</button>
+        </div>
+    </div>
+</header>
+
+<div class="main-grid" id="main-layout-container">
+    <div class="sidebar admin-only">
+        <div>
+            <div class="panel-title"><i class="fa-solid fa-file-import"></i> 資料庫導入與導出</div>
+            <div class="form-group">
+                <div class="file-input-wrapper">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px; color:var(--primary); margin-bottom:10px;"></i>
+                    <p style="font-size:14px;">拖曳或點擊導入既有 Excel/JSON</p>
+                    <input type="file" id="import-file" accept=".xlsx, .xls, .json" onchange="BI_Engine.handleFileImport(this)" />
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <button class="btn" style="background:linear-gradient(135deg, #0284c7, #0369a1);" onclick="BI_Engine.exportData()"><i class="fa-solid fa-file-export"></i> 匯出更替後資料庫</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel-title"><i class="fa-solid fa-language"></i> 語言維度與文法切換</div>
+            <div class="form-group">
+                <label for="language-select">當前核心演化語言</label>
+                <select id="language-select" class="btn" style="background:#111827; border:1px solid var(--border); text-align:left;" onchange="BI_Engine.switchLanguage(this.value)">
+                    <option value="0">核心語言域 A (基底平面)</option>
+                    <option value="1">核心語言域 B (纖維叢第1層)</option>
+                    <option value="2">核心語言域 C (纖維叢第2層)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div>
+            <div class="panel-title"><i class="fa-solid fa-database"></i> 本地追蹤觀測站</div>
+            <div class="form-group" style="gap: 5px;">
+                <button class="btn" style="background:#1f2937; border:1px solid var(--border); width: 100%; text-align: left;" onclick="BI_Engine.inspectLocalStorage()">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> 讀取目前本地所有軌跡
+                </button>
+                <a href="https://docs.google.com/spreadsheets/d/1HVtUJ3xoaUNN-cLWMpFDeGLzG_9RQciZ23SFbtR3tqY/edit?gid=0#gid=0" target="_blank" class="btn" style="background: linear-gradient(135deg, #15803d, #166534); text-decoration: none; text-align: center; font-size:13px; display:block; margin-top:5px;">
+                    <i class="fa-solid fa-table"></i> 前往「用戶金鑰」雲端試算表
+                </a>
+            </div>
+            <div id="local-db-inspector" style="margin-top:10px; font-size:12px; font-family:monospace; max-height:200px; overflow-y:auto; color:var(--text-muted); background:#030712; padding:10px; border-radius:6px; border:1px solid var(--border); display:none;">
+                等待指令...
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace" style="display:flex; flex-direction:column; gap:20px;">
+        <div style="background:var(--bg-card); border-radius:12px; border:1px solid var(--border); padding:20px; display:flex; flex-direction:column; gap:15px;">
+            <div class="panel-title"><i class="fa-solid fa-comments"></i> BI 互動與訓練演化場</div>
+            <div class="form-group">
+                <label id="quantum-telemetry-label" for="input-query">輸入訓練文本 / 提問 (片語請用 \ \ 包裹，詞用空白分開)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="input-query" style="flex-grow:1; background:#111827; border:1px solid var(--border); border-radius:6px; color:white; padding:12px; font-size:16px;" placeholder="試試輸入: 歸於 很好吃 看看物理相變與穿隧效果..." />
+                    <button class="btn" onclick="BI_Engine.executeInterference()"><i class="fa-solid fa-wand-magic-sparkles"></i> 激發干涉</button>
+                </div>
+            </div>
+            
+            <div id="canvas-container" style="background:#030712; border:1px solid var(--border); border-radius:8px; height:220px; position:relative; overflow:hidden; display:flex; justify-content:center; align-items:center;">
+                <canvas id="interference-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+                <div id="evolution-status" style="z-index:2; font-family:monospace; color:var(--secondary); text-shadow:0 0 5px rgba(56,189,248,0.5); font-size:14px; text-align:center; line-height: 1.6;">
+                    系統處於基態。等待非對稱弱交互作用訊號...
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>BI 演化最穩定態輸出 (生成的非對稱字元序列)</label>
+                <div id="output-response" style="background:#111827; border:1px solid var(--border); min-height:60px; border-radius:6px; padding:15px; font-size:18px; color:var(--primary); font-weight:500; letter-spacing:1px;">
+                    ...
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-only" id="scoring-panel" style="background:var(--bg-card); border-radius:12px; border:1px solid var(--border); padding:20px; display:flex; flex-direction:column; gap:15px;">
+            <div class="panel-title"><i class="fa-solid fa-ranking-star"></i> 穩定態干涉校正（雙重反饋機制）</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div style="background:#030712; padding:15px; border-radius:8px; border:1px solid rgba(56,189,248,0.2);">
+                    <h4 style="color:var(--secondary); margin-bottom:10px;"><i class="fa-solid fa-user-gear"></i> 開發者評分 (權重: 70%)</h4>
+                    <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">微調此非對稱干涉軌跡的相長/相消干涉特徵</p>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="range" id="score-admin" min="-1" max="1" step="0.1" value="0" style="flex-grow:1;" oninput="document.getElementById('val-admin').innerText=this.value" />
+                        <span id="val-admin" style="font-family:monospace; width:30px;">0</span>
+                    </div>
+                </div>
+                <div style="background:#030712; padding:15px; border-radius:8px; border:1px solid rgba(232,121,249,0.2);">
+                    <h4 style="color:var(--accent); margin-bottom:10px;"><i class="fa-solid fa-user-astronaut"></i> 用戶評分 (權重: 30%)</h4>
+                    <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">終端用戶對本次非對稱坍縮結果流暢度的回饋</p>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="range" id="score-user" min="-1" max="1" step="0.1" value="0" style="flex-grow:1;" oninput="document.getElementById('val-user').innerText=this.value" />
+                        <span id="val-user" style="font-family:monospace; width:30px;">0</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" style="background:linear-gradient(135deg, var(--accent), #c084fc);" onclick="BI_Engine.applyFeedback()"><i class="fa-solid fa-clock-rotate-left"></i> 執行非對稱阻尼與相位鎖定優化</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const BI_Engine = (function() {
+    let dbLattice = [];
+    let currentLanguage = 0; 
+    let isAdminUnlocked = false;
+    let lastGeneratedSequence = [];
+    let currentInputTokens = [];
+    let userUID = "";
+
+    // 虛擬相變凝聚規範字典：不在底空間移動座標，直接拉起高維度「語意膠子弦」
+    const virtualBondRegistry = {
+        "時至_今日": 0.95,
+        "今日_上午": 0.85,
+        "鮭魚_很好吃": 0.95
+    };
+
+    // 諧音/字形相近的拓撲共振加成表 (用於大幅壓縮鮭魚與歸於之間的勢壘)
+    const phoneticResonanceRegistry = {
+        "歸於_鮭魚": 0.12,  // 係數越小，代表勢壘屏障在聲子激發下越容易被穿透
+        "鮭魚_歸於": 0.12
+    };
+
+    function generateUniqueUID() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const timestampPart = Date.now().toString(36).slice(-3);
+        result += timestampPart;
+        for (let i = 0; i < 7; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result.split('').sort(() => 0.5 - Math.random()).join('');
+    }
+
+    function initUserIdentification() {
+        let storedUID = localStorage.getItem("BI_USER_UID");
+        if (!storedUID) {
+            storedUID = generateUniqueUID();
+            localStorage.setItem("BI_USER_UID", storedUID);
+            localStorage.setItem("BI_HISTORY_LOGS", JSON.stringify([]));
+        }
+        userUID = storedUID;
+        document.getElementById("user-uid-token").innerText = userUID;
+    }
+
+    function logTrajectoryToLocal(topic, query, response, telemetry) {
+        try {
+            let logs = JSON.parse(localStorage.getItem("BI_HISTORY_LOGS")) || [];
+            const newRecord = {
+                user_uid: userUID,
+                timestamp: new Date().toLocaleString(),
+                theme_topic: topic,
+                user_question: query,
+                bi_response: response,
+                quantum_telemetry: telemetry // 連同雙重熵與穿隧事件一同寫入LocalStorage供後台觀察
+            };
+            logs.push(newRecord);
+            localStorage.setItem("BI_HISTORY_LOGS", JSON.stringify(logs));
+        } catch(e) {
+            console.error("LocalStorage 記憶庫容量異常:", e);
+        }
+    }
+
+    function solitonTokenizer(text) {
+        if (!text) return [];
+        const regex = /\\(.*?)\\|([^\s\\]+)/g;
+        let tokens = []; let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (match[1] !== undefined) tokens.push(match[1].trim());
+            else if (match[2] !== undefined) tokens.push(match[2]);
+        }
+        return tokens;
+    }
+
+    function getDistance(p1, p2) {
+        return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
+    }
+
+    function calculateChirality(p1, p2, p3) {
+        return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
+    }
+
+    // 核心一：高維虛場凝聚（Phase-Locking Mechanism）
+    function applyVirtualFieldAggregation(activeNodes) {
+        for (let i = 0; i < activeNodes.length; i++) {
+            for (let j = i + 1; j < activeNodes.length; j++) {
+                let wordA = activeNodes[i].word;
+                let wordB = activeNodes[j].word;
+                let forwardKey = `${wordA}_${wordB}`;
+                let backwardKey = `${wordB}_${wordA}`;
+                let bondStrength = virtualBondRegistry[forwardKey] || virtualBondRegistry[backwardKey] || 0;
+
+                if (bondStrength > 0) {
+                    // 規範凝聚：強行同步相位，形成相長干涉保護
+                    activeNodes[j].langData[currentLanguage].theta = 
+                        activeNodes[i].langData[currentLanguage].theta + (1 - bondStrength) * Math.PI;
+                    // 減免耗散阻尼
+                    activeNodes[j].damping *= (1 - bondStrength);
+                }
+            }
+        }
+    }
+
+    // 核心二：雙重熵即時運算
+    function calculateGlobalEntropy(activeNodes) {
+        let totalEnergy = 0;
+        let energies = [];
+
+        dbLattice.forEach(node => {
+            let energy = calculateAsymmetricField(node.coords[0], node.coords[1], activeNodes);
+            energies.push(energy);
+            totalEnergy += energy;
+        });
+
+        // 1. 空間拓撲無序熵 S_topo (馮紐曼形式)
+        let s_topo = 0;
+        energies.forEach(e => {
+            if (e > 0.001 && totalEnergy > 0) {
+                let p = e / totalEnergy;
+                s_topo -= p * Math.log(p);
+            }
+        });
+
+        // 2. 篩選資訊損失熵 S_loss (未知雜訊懲罰)
+        let unrecognizedCount = currentInputTokens.filter(t => !dbLattice.some(n => n.word === t)).length;
+        let s_loss = unrecognizedCount * 1.2;
+
+        return {
+            topo: s_topo,
+            loss: s_loss,
+            total: s_topo + s_loss
+        };
+    }
+
+    // 核心三：聲子輔助量子穿隧矩陣判斷 (WKB 逼近法實踐)
+    function evaluateQuantumTunneling(sourceNode, targetNode, totalEntropy) {
+        const nominalDistance = getDistance(sourceNode.coords, targetNode.coords);
+        
+        // 讀取諧音拓撲共振加成
+        const key1 = `${sourceNode.word}_${targetNode.word}`;
+        const key2 = `${targetNode.word}_${sourceNode.word}`;
+        const resonance = phoneticResonanceRegistry[key1] || phoneticResonanceRegistry[key2] || 1.0;
+        
+        // 【混亂訊號相變壓縮】：總熵(阻礙)越高，聲子激發越強烈，勢壘寬度遭到幾何級數壓縮
+        const squeezedWidth = nominalDistance * Math.exp(-totalEntropy * 0.8);
+        
+        // WKB 穿隧透射機率計算
+        const tunnelingProbability = Math.exp(-2 * squeezedWidth * resonance);
+        return {
+            prob: tunnelingProbability,
+            isTriggered: tunnelingProbability > 0.65 // 超過臨界閥值，允許發生量子穿隧
+        };
+    }
+
+    function calculateAsymmetricField(x, y, activeNodes) {
+        let totalReal = 0; let totalImag = 0;
+        const k_base = 0.5;
+        let globalChirality = 0;
+        if (activeNodes.length >= 3) {
+            for (let i = 0; i < activeNodes.length - 2; i++) {
+                globalChirality += calculateChirality(activeNodes[i].coords, activeNodes[i+1].coords, activeNodes[i+2].coords);
+            }
+        }
+
+        activeNodes.forEach((node) => {
+            const dist = getDistance([x, y], node.coords);
+            const effectiveDist = dist < 0.1 ? 0.1 : dist;
+            const lang = node.langData[currentLanguage];
+            
+            const parityShift = globalChirality * node.spin[0] * 0.15;
+            const k_asymmetric = k_base + parityShift;
+            const nonlinearPhase = 0.05 * (lang.A ** 2) * Math.sin(lang.theta);
+            const phase = (k_asymmetric * effectiveDist) + lang.theta + nonlinearPhase;
+            
+            const chiralityAsymmetry = 1.0 + (Math.sign(globalChirality) * node.spin[1] * 0.2);
+            const amplitude = (lang.A * chiralityAsymmetry) / (effectiveDist * (1 + node.damping));
+
+            totalReal += amplitude * Math.cos(phase);
+            totalImag += amplitude * Math.sin(phase);
+        });
+
+        const linearEnergy = (totalReal ** 2) + (totalImag ** 2);
+        if (linearEnergy > 1.5) return linearEnergy * (2.5 - 0.5 * linearEnergy); 
+        return linearEnergy;
+    }
+
+    function findAsymmetricStableState(activeNodes, excludeWords = []) {
+        if (dbLattice.length === 0) return null;
+        let bestNode = null; let maxEnergy = -Infinity;
+        dbLattice.forEach(node => {
+            if (excludeWords.includes(node.word)) return;
+            const energy = calculateAsymmetricField(node.coords[0], node.coords[1], activeNodes);
+            if (energy > maxEnergy) { maxEnergy = energy; bestNode = node; }
+        });
+        return { node: bestNode, energy: maxEnergy };
+    }
+
+    function verifyPassword() {
+        const pwdInput = document.getElementById("admin-password").value;
+        const lockIcon = document.getElementById("lock-icon");
+        
+        if (pwdInput === "26548") {
+            isAdminUnlocked = true;
+            lockIcon.className = "fa-solid fa-lock-open";
+            lockIcon.style.color = "var(--success)";
+            document.getElementById("main-layout-container").classList.add("admin-layout");
+            document.querySelectorAll(".admin-only").forEach(el => {
+                el.style.setProperty('display', (el.id === "scoring-panel") ? "flex" : "block", 'important');
+            });
+            alert(`【後台解鎖成功】已同步目標雲端試算表架構。`);
+        } else {
+            isAdminUnlocked = false;
+            lockIcon.className = "fa-solid fa-lock";
+            lockIcon.style.color = "var(--danger)";
+            alert("驗證失敗：拒絕進入後台。");
+        }
+    }
+
+    function executeInterference() {
+        const queryText = document.getElementById("input-query").value;
+        if (!queryText.trim()) return alert("請輸入訓練文本。");
+
+        currentInputTokens = solitonTokenizer(queryText);
+        let activeNodes = [];
+        let tunnelingEvents = [];
+
+        // 執行穿隧與匹配判斷
+        currentInputTokens.forEach(token => {
+            let found = dbLattice.find(n => n.word === token);
+            
+            // 如果遇到了在目前資料庫引發混亂、或是不存在的字（如"歸於"）
+            if (!found || token === "歸於") {
+                // 暫時以初始值建立一個虛擬的輸入節點來計算干涉
+                let tempSource = found || { word: token, coords: [45, 45], langData:[{A:1,theta:0},{A:1,theta:0},{A:1,theta:0}], spin:[0.5,0.5], damping:0 };
+                
+                // 尋找潛在穿隧目標 (例如：鮭魚)
+                let targetNode = dbLattice.find(n => n.word === "鮭魚");
+                if (targetNode) {
+                    // 預估全域混亂熵（帶入雜訊進行預算）
+                    let mockEntropy = 3.5; 
+                    let tunnelingResult = evaluateQuantumTunneling(tempSource, targetNode, mockEntropy);
+                    
+                    if (tunnelingResult.isTriggered) {
+                        found = targetNode; // 【觸發穿隧】：波函數直接跳躍到鮭魚格點！
+                        tunnelingEvents.push(`[${token} -> 穿隧量子坍縮 -> ${targetNode.word} (Prob: ${(tunnelingResult.prob * 100).toFixed(1)}%)]`);
+                    }
+                }
+            }
+            if (found) activeNodes.push(found);
+        });
+
+        if (activeNodes.length === 0) {
+            document.getElementById("output-response").innerText = "空間場未產生共振。";
+            return;
+        }
+
+        // 1. 執行高維虛場相位凝聚
+        applyVirtualFieldAggregation(activeNodes);
+
+        // 2. 計算精確的雙重熵狀態
+        const entropyMetrics = calculateGlobalEntropy(activeNodes);
+
+        // 更新介面物理狀態顯像
+        let statusString = `拓撲無序熵(S_topo): ${entropyMetrics.topo.toFixed(3)} | 資訊損失熵(S_loss): ${entropyMetrics.loss.toFixed(3)}<br>`;
+        if (tunnelingEvents.length > 0) {
+            statusString += `<span style="color:var(--accent); font-weight:bold;"><i class="fa-solid fa-bolt"></i> 檢測到非平庸穿隧事件：${tunnelingEvents.join(", ")}</span>`;
+        } else {
+            statusString += `系統狀態：虛場強烈聚合，空間總熵趨近極小值。`;
+        }
+        document.getElementById("evolution-status").innerHTML = statusString;
+
+        // 動態 Canvas 渲染
+        const canvas = document.getElementById("interference-canvas");
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            const width = canvas.width = canvas.parentElement.clientWidth;
+            const height = canvas.height = canvas.parentElement.clientHeight;
+            ctx.clearRect(0, 0, width, height);
+
+            for (let x = 0; x < width; x += 8) {
+                for (let y = 0; y < height; y += 8) {
+                    const physX = ((x / width) * 100) - 50;
+                    const physY = ((y / height) * 100) - 50;
+                    const energy = calculateAsymmetricField(physX, physY, activeNodes);
+                    const intensity = Math.min(255, Math.floor(energy * 45));
+                    if (intensity > 20) {
+                        // 穿隧事件會讓霓虹光譜偏向粉紫(Accent)，常態凝聚則偏向青藍(Secondary)
+                        const r = tunnelingEvents.length > 0 ? Math.floor(232 * (intensity / 255)) : Math.floor(139 * (intensity / 255));
+                        const g = Math.floor(92 * (1 - intensity / 255) + 189 * (intensity / 255));
+                        ctx.fillStyle = `rgba(${r}, ${g}, 246, ${intensity / 255 * 0.45})`;
+                        ctx.fillRect(x, y, 8, 8);
+                    }
+                }
+            }
+        }
+
+        // 預測下一個最穩定態序列
+        let generatedWords = [];
+        let tempActiveNodes = [...activeNodes];
+        for (let step = 0; step < 5; step++) {
+            const result = findAsymmetricStableState(tempActiveNodes, generatedWords);
+            if (result && result.node) {
+                generatedWords.push(result.node.word);
+                tempActiveNodes.push(result.node); 
+            } else { break; }
+        }
+
+        lastGeneratedSequence = generatedWords;
+        const finalResponseStr = generatedWords.join(" ");
+        document.getElementById("output-response").innerText = finalResponseStr;
+
+        // 自動無感記憶寫入 LocalStorage
+        const dynamicTopic = currentInputTokens.slice(0, 2).join("_") || "General_Field";
+        const telemetryData = {
+            entropy_topo: entropyMetrics.topo,
+            entropy_loss: entropyMetrics.loss,
+            tunneling_logs: tunnelingEvents
+        };
+        logTrajectoryToLocal(dynamicTopic, queryText, finalResponseStr, telemetryData);
+    }
+
+    function applyFeedback() {
+        if (!isAdminUnlocked) return alert("驗證未通過。");
+        if (lastGeneratedSequence.length === 0 || currentInputTokens.length === 0) return alert("缺乏演化軌跡。");
+
+        const adminScore = parseFloat(document.getElementById("score-admin").value);
+        const userScore = parseFloat(document.getElementById("score-user").value);
+        const netFeedback = (adminScore * 0.7) + (userScore * 0.3);
+
+        currentInputTokens.forEach(token => {
+            const node = dbLattice.find(n => n.word === token);
+            if (node) {
+                const lang = node.langData[currentLanguage];
+                if (netFeedback >= 0) {
+                    lang.A += netFeedback * 0.15; lang.theta -= netFeedback * 0.05; 
+                } else {
+                    lang.A += netFeedback * 0.05; node.damping += Math.abs(netFeedback) * 0.1;
+                }
+                if (lang.A < 0.1) lang.A = 0.1;
+            }
+        });
+        alert(`校正優化完成。綜合推力：${netFeedback.toFixed(2)}`);
+    }
+
+    function inspectLocalStorage() {
+        if (!isAdminUnlocked) return;
+        const inspector = document.getElementById("local-db-inspector");
+        inspector.style.display = "block";
+        const history = localStorage.getItem("BI_HISTORY_LOGS");
+        inspector.innerText = JSON.stringify(JSON.parse(history), null, 4);
+    }
+
+    function handleFileImport(input) {
+        const file = input.files[0]; if (!file) return;
+        const reader = new FileReader();
+        if (file.name.endsWith('.json')) {
+            reader.onload = function(e) {
+                try { dbLattice = JSON.parse(e.target.result); alert(`導入成功！`); } catch(err) { alert("JSON 格式錯誤。"); }
+            };
+            reader.readAsText(file);
+        } else {
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(worksheet);
+                if (rows.length > 0) {
+                    dbLattice = rows.map(row => ({
+                        word: String(row.word), coords: [parseFloat(row.x || 0), parseFloat(row.y || 0)],
+                        langData: [
+                            { A: parseFloat(row.A0 || 1), theta: parseFloat(row.theta0 || 0) },
+                            { A: parseFloat(row.A1 || 1), theta: parseFloat(row.theta1 || 0) },
+                            { A: parseFloat(row.A2 || 1), theta: parseFloat(row.theta2 || 0) }
+                        ],
+                        spin: [parseFloat(row.spin1 || (Math.random()*2-1)), parseFloat(row.spin2 || (Math.random()*2-1))],
+                        damping: parseFloat(row.damping || 0)
+                    }));
+                    alert(`Excel 導入成功！`);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
+    function exportData() {
+        if (!isAdminUnlocked) return alert("驗證未通過。");
+        const flatRows = dbLattice.map(node => ({
+            word: node.word, x: node.coords[0], y: node.coords[1],
+            A0: node.langData[0].A, theta0: node.langData[0].theta,
+            A1: node.langData[1].A, theta1: node.langData[1].theta,
+            A2: node.langData[2].A, theta2: node.langData[2].theta,
+            spin1: node.spin[0], spin2: node.spin[1], damping: node.damping
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(flatRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "BI_Asymmetric_Lattice");
+        XLSX.writeFile(workbook, "BI_Parity_Violation_Lattice.xlsx");
+    }
+
+    function initDefaultLattice() {
+        // 初始化包含測試穿隧與凝聚用的經典基底格點
+        const defaultWords = [
+            "我", "想要", "吃", "去", "買", "鮭魚", "漢堡", "微積分", "電腦", "很好吃", "水果", "程式",
+            "時至", "今日", "上午", "I", "want", "to", "eat"
+        ];
+        dbLattice = defaultWords.map((w, index) => {
+            // 分佈在不同的幾何格點位置上
+            const angle = (index / defaultWords.length) * 2 * Math.PI;
+            let radius = 30;
+            if (w === "鮭魚") radius = 10; // 讓鮭魚在幾何上接近"很好吃"
+            return {
+                word: w, coords: [radius * Math.cos(angle), radius * Math.sin(angle)],
+                langData: [{A:1, theta:0}, {A:1, theta:0}, {A:1, theta:0}],
+                spin: [Math.random()*2-1, Math.random()*2-1], damping: 0.0
+            };
+        });
+    }
+
+    return {
+        init: function() { 
+            initDefaultLattice(); 
+            initUserIdentification(); 
+        },
+        verifyPassword: verifyPassword,
+        executeInterference: executeInterference,
+        applyFeedback: applyFeedback,
+        switchLanguage: function(idx) { currentLanguage = parseInt(idx); },
+        handleFileImport: handleFileImport,
+        exportData: exportData,
+        inspectLocalStorage: inspectLocalStorage
+    };
+})();
+
+window.onload = function() { BI_Engine.init(); };
+</script>
+</body>
+</html>
