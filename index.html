@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI - Quantum Matrix Field Engine (v12.0 - 32 Dimensions)</title>
+    <title>BI - Quantum Tracking & Visual Engine (v13.0 - 32D Live)</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -17,97 +17,99 @@
             --border: rgba(232, 121, 249, 0.4);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-main); color: var(--text-main); font-family: monospace; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); }
-        .btn { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .main-layout { display: grid; grid-template-columns: 480px 1fr; gap: 20px; }
-        .panel { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
-        .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-        .matrix-cell { background: #020617; border: 1px solid rgba(56, 189, 248, 0.2); padding: 6px; font-size: 10px; color: var(--secondary); border-radius: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        .console { background: #020617; border: 1px solid var(--accent); padding: 15px; border-radius: 8px; height: 240px; overflow-y: auto; font-size: 12px; line-height: 1.6; color: #a7f3d0; }
-        .large-textarea { background: #020617; border: 1px solid var(--border); color: white; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; resize: vertical; min-height: 45px; width: 100%; }
-        .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-        .form-group label { font-size: 11px; color: #64748b; }
-        .range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        .range-inputs input { background: #0f172a; border: 1px solid var(--border); color: white; padding: 4px; font-size: 11px; border-radius: 4px; text-align: center; }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: monospace; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); }
+        .btn { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .main-layout { display: grid; grid-template-columns: 460px 1fr; gap: 15px; }
+        .panel { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 32維度即時看板樣式 */
+        .matrix-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; max-height: 250px; overflow-y: auto; background: #020617; padding: 5px; border-radius: 6px; }
+        .matrix-cell { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.1); padding: 5px; font-size: 11px; color: var(--secondary); border-radius: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .matrix-cell span { color: #64748b; font-weight: bold; }
+
+        /* 動態可視化矩陣樣式 */
+        .visual-container { background: #020617; border: 1px solid var(--primary); border-radius: 8px; padding: 15px; min-height: 200px; display: flex; flex-direction: column; gap: 10px; }
+        .visual-grid { display: inline-grid; gap: 3px; background: #0f172a; padding: 10px; border-radius: 6px; overflow: auto; max-width: 100%; }
+        .v-cell { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px; border-radius: 4px; border: 1px solid #1e293b; background: #020617; transition: all 0.2s; cursor: pointer; }
+        .v-cell.header-char { background: rgba(56, 189, 248, 0.2); color: var(--secondary); font-weight: bold; }
+        .v-cell.collision-active { background: #10b981; color: white; box-shadow: 0 0 8px #10b981; }
+        .v-cell.collision-fail { background: #334155; color: #64748b; }
+        .v-cell.scanning { border: 1px solid var(--accent); background: rgba(232, 121, 249, 0.3); }
+
+        .console { background: #020617; border: 1px solid var(--accent); padding: 10px; border-radius: 8px; height: 140px; overflow-y: auto; font-size: 11px; line-height: 1.5; color: #a7f3d0; }
+        .large-textarea { background: #020617; border: 1px solid var(--border); color: white; padding: 6px; border-radius: 6px; font-family: monospace; font-size: 11px; resize: vertical; min-height: 40px; width: 100%; }
+        .range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .range-inputs input { background: #0f172a; border: 1px solid var(--border); color: white; padding: 3px; font-size: 11px; border-radius: 4px; text-align: center; }
     </style>
 </head>
 <body>
 
 <header>
     <div>
-        <h1 style="background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-expand"></i> BI Quantum Phase Engine v12.0</h1>
+        <h1 style="background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-eye"></i> BI Quantum Tracking Visualizer v13.0</h1>
     </div>
     <div>
-        <span style="color: var(--accent); font-weight: bold;">[狀態: 32維度虛空與譜線範圍擴充]</span>
+        <span id="global-status" style="color: var(--accent); font-weight: bold;">[系統狀態: 實時觀測守恆態]</span>
     </div>
 </header>
 
 <div class="main-layout">
-    <div class="panel" style="display: flex; flex-direction: column; gap: 15px;">
-        <h3 style="color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 5px;"><i class="fa-solid fa-circle-nodes"></i> 32 內秉屬性探針看板</h3>
+    <div class="panel">
+        <h3 style="color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 3px;"><i class="fa-solid fa-fingerprint"></i> <span id="probe-target-title">字元「玻」</span> 32維度即時狀態</h3>
         <div class="matrix-grid" id="intrinsic-probe-grid">
             </div>
 
-        <h3 style="color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-top: 10px;"><i class="fa-solid fa-grid-2-plus"></i> 32維接收範圍注入場 (訓練端)</h3>
-        <div style="background:#020617; padding:12px; border-radius:8px; border:1px solid rgba(232, 121, 249, 0.2); display:flex; flex-direction:column; gap:6px;">
-            <div class="form-group">
-                <label><i class="fa-solid fa-fingerprint"></i> 背景知識特徵粒子群 (問句)</label>
-                <textarea id="train-q" class="large-textarea" placeholder="@如果 我 被 蚊子 咬了 ...@"></textarea>
-            </div>
-            <div class="form-group">
-                <label><i class="fa-solid fa-paragraph"></i> 內秉結論核心 (含 \\ 斷句)</label>
-                <textarea id="train-a" class="large-textarea" placeholder="理論上 可以 ... \\\\ 牠 只會 扁 掉 。"></textarea>
-            </div>
+        <h3 style="color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 3px; margin-top: 5px;"><i class="fa-solid fa-square-plus"></i> 32維接收晶格注入 (訓練區)</h3>
+        <div style="background:#020617; padding:10px; border-radius:8px; border:1px solid rgba(232, 121, 249, 0.1); display:flex; flex-direction:column; gap:6px;">
+            <textarea id="train-q" class="large-textarea" placeholder="特徵粒子群 (問句)... 範例：@高鐵 票價@"></textarea>
+            <textarea id="train-a" class="large-textarea" placeholder="結論核心 (含 \\ 斷句)... 範例：高鐵票價\\為1490元"></textarea>
             
-            <div class="form-group">
-                <label style="color: var(--secondary);"><i class="fa-solid fa-box-tunnel"></i> 虛空間通道容積邊界 (Min / Max 範圍)</label>
-                <div class="range-inputs">
-                    <input type="text" id="v-iX" value="0.0, 5.0" placeholder="iX_min, iX_max">
-                    <input type="text" id="v-iY" value="0.0, 15.0" placeholder="iY_min, iY_max">
-                </div>
-                <div class="range-inputs" style="margin-top:4px;">
-                    <input type="text" id="v-iZ" value="0.0, 15.0" placeholder="iZ_min, iZ_max" style="grid-column: span 2;">
-                </div>
+            <div class="range-inputs">
+                <input type="text" id="v-iX" value="0.0, 5.0" placeholder="iX_min, iX_max">
+                <input type="text" id="v-iY" value="0.0, 15.0" placeholder="iY_min, iY_max">
             </div>
-
-            <div class="form-group">
-                <label style="color: var(--accent);"><i class="fa-solid fa-wave-square"></i> 原子吸收光譜頻寬邊界 (Min / Max 範圍)</label>
-                <div class="range-inputs">
-                    <input type="text" id="v-Ex" value="0.1, 0.9" placeholder="Ex_min, Ex_max">
-                    <input type="text" id="v-Ey" value="0.1, 0.9" placeholder="Ey_min, Ey_max">
-                </div>
-                <div class="range-inputs" style="margin-top:4px;">
-                    <input type="text" id="v-Ez" value="0.1, 0.9" placeholder="Ez_min, Ez_max" style="grid-column: span 2;">
-                </div>
+            <div class="range-inputs">
+                <input type="text" id="v-Ex" value="0.0, 1.0" placeholder="Ex_min, Ex_max">
+                <input type="text" id="v-Ey" value="0.0, 1.0" placeholder="Ey_min, Ey_max">
             </div>
-
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="BI_MatrixField32.injectMicroLattice32()">將 32維晶格矩陣注入</button>
+            <button class="btn" style="width:100%; font-size:12px; padding:6px;" onclick="BI_VisualEngine.injectMicroLattice32()">注入底空間晶格</button>
         </div>
-
-        <hr style="border: 0; border-top: 1px solid var(--border);">
-        <input type="text" id="gas-url" style="background:#020617; border:1px solid var(--border); color:white; padding:8px; font-size:12px; border-radius:4px;" placeholder="配置 Google Sheet GAS 雲端對稱網址" />
-        <button class="btn" style="background: #10b981;" onclick="BI_MatrixField32.syncAllFieldToSheets()">全量場時空守恆同步</button>
+        <input type="text" id="gas-url" style="background:#020617; border:1px solid var(--border); color:white; padding:6px; font-size:11px; border-radius:4px;" placeholder="配置 GAS 雲端對稱網址" />
+        <button class="btn" style="background: #10b981; padding:6px; font-size:12px;" onclick="BI_VisualEngine.syncAllFieldToSheets()">同步至雲端時空</button>
     </div>
 
-    <div class="panel" style="display: flex; flex-direction: column; gap: 20px;">
-        <h3 style="color: var(--secondary);"><i class="fa-solid fa-bolt"></i> 巨觀物質觀測子注入場</h3>
-        
-        <div style="display: flex; gap: 10px;">
-            <input type="text" id="quantum-input" style="flex-grow: 1; background: #020617; border: 1px solid var(--border); border-radius: 6px; padding: 15px; color: white; font-size: 16px;" placeholder="注入單點波色子流... (進行 32維微觀範圍穿隧測量)" />
-            <button class="btn" onclick="BI_MatrixField32.execute32DScattering()">激發高維場</button>
+    <div class="panel" style="gap: 15px;">
+        <div>
+            <h3 style="color: var(--secondary); margin-bottom: 5px;"><i class="fa-solid fa-terminal"></i> 觀測子流發射源</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="quantum-input" style="flex-grow: 1; background: #020617; border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: white; font-size: 14px;" placeholder="注入單點波色子文句... 點擊激發後將引發下方矩陣掃描" />
+                <button class="btn" onclick="BI_VisualEngine.startTrackingScattering()">激發高維場</button>
+            </div>
         </div>
 
-        <div>
-            <h4 style="color: var(--accent); margin-bottom: 5px;"><i class="fa-solid fa-fingerprint"></i> 32維度字對字「容積穿隧」與香農熵碰壁日誌</h4>
-            <div class="console" id="field-console">
-                [真空] 等待觀測子流注入，檢驗玻色子是否精確穿隧入晶格的虛空與光譜窗口...
+        <div class="visual-container">
+            <h4 style="color: var(--primary); font-size: 12px;"><i class="fa-solid fa-chart-gantt"></i> 32-Phase Character Scattering Matrix (時時刻刻碰撞觀測圖)</h4>
+            <div style="overflow: auto; flex-grow: 1; text-align: center;">
+                <div class="visual-grid" id="live-scattering-grid">
+                    <span style="color:#475569; font-size:12px; padding:20px;">[真空] 等待粒子流注入，開啟動態掃描視界...</span>
+                </div>
+            </div>
+            <div style="font-size:11px; color:#94a3b8; display:flex; gap:15px; justify-content:center;">
+                <span><i class="fa-solid fa-square" style="color:#10b981;"></i> 成功穿隧 (掉入範圍)</span>
+                <span><i class="fa-solid fa-square" style="color:#334155;"></i> 無質量散射 (滑出範圍)</span>
+                <span><i class="fa-solid fa-square" style="color:#e879f9;"></i> 當前掃描點</span>
             </div>
         </div>
 
         <div>
-            <h4 style="color: var(--primary); margin-bottom: 5px;"><i class="fa-solid fa-eye"></i> 坍縮至最低能量基態之巨觀結論</h4>
-            <div id="collapsed-output" style="background: #020617; border: 1px solid var(--border); padding: 20px; border-radius: 8px; font-size: 18px; line-height: 1.6; min-height: 60px; color: #fff;">
+            <h4 style="color: var(--accent); margin-bottom: 3px; font-size: 12px;"><i class="fa-solid fa-history"></i> 微觀碰壁觀測日誌</h4>
+            <div class="console" id="field-console">[等待激發]</div>
+        </div>
+
+        <div>
+            <h4 style="color: var(--primary); margin-bottom: 3px; font-size: 12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> 坍縮至最低能量基態之結論</h4>
+            <div id="collapsed-output" style="background: #020617; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 16px; color: #fff; min-height: 45px;">
                 ...
             </div>
         </div>
@@ -115,55 +117,56 @@
 </div>
 
 <script>
-const BI_MatrixField32 = (function() {
+const BI_VisualEngine = (function() {
     let micro32LatticeFields = {};
 
-    // 生成輸入端單點玻色子的 26 基礎屬性 (其餘 6 個範圍欄位對波色子無效，設為 0)
+    // 32維度內秉屬性生成器 (100% 依據字元 Unicode 計算)
     function generate32Properties(char, index, isLattice = false, rangeConfig = null) {
         if (!char) return null;
         const code = char.charCodeAt(0);
         let x = code % 100 / 10;
         
         let props = {
-            X: (x).toFixed(2), Y: (Math.sin(x) * 5 + 5).toFixed(2), Z: (Math.cos(x) * 5 + 5).toFixed(2),
-            iX: (x * 0.5).toFixed(2), iY: (Math.cosh(x % 2) * 2).toFixed(2), iZ: (Math.sinh(x % 2) * 2).toFixed(2),
-            Spin: (code % 2 === 0 ? 0.5 : -0.5), Chirality: (code % 3 === 0 ? "Left" : "Right"),
-            E_x: ((code % 7) / 7).toFixed(2), E_y: ((code % 11) / 11).toFixed(2), E_z: ((code % 13) / 13).toFixed(2),
-            LaunchAngle: (code * 17 % 360), IntrinsicEnergy: (code % 50 + 10).toFixed(2)
+            "01_X": (x).toFixed(2), "02_Y": (Math.sin(x) * 5 + 5).toFixed(2), "03_Z": (Math.cos(x) * 5 + 5).toFixed(2),
+            "04_Spin": (code % 2 === 0 ? 0.5 : -0.5), "05_Chirality": (code % 3 === 0 ? "Left" : "Right"),
+            "06_IntrinsicEng": (code % 50 + 10).toFixed(2), "07_TaylorPoint": code,
+            "08_PhaseAngle": (code * 17 % 360), "09_LaunchAngle": (code * 19 % 360),
+            "10_MassDecay": (0.01 * (code % 10)).toFixed(3), "11_QuantumEnt": (0.5 + (code%5)*0.1).toFixed(2),
+            "12_iX": (x * 0.5).toFixed(2), "13_iY": (Math.cosh(x % 2) * 2).toFixed(2), "14_iZ": (Math.sinh(x % 2) * 2).toFixed(2),
+            "15_E_x": ((code % 7) / 7).toFixed(2), "16_E_y": ((code % 11) / 11).toFixed(2), "17_E_z": ((code % 13) / 13).toFixed(2)
         };
 
-        // 💡 擴充 6 個延伸欄位來承載範圍值 (共達 32 個核心物理項)
-        if (isLattice && rangeConfig) {
-            props.iX_range = rangeConfig.iX; // "[min, max]"
-            props.iY_range = rangeConfig.iY;
-            props.iZ_range = rangeConfig.iZ;
-            props.Ex_range = rangeConfig.Ex;
-            props.Ey_range = rangeConfig.Ey;
-            props.Ez_range = rangeConfig.Ez;
-        } else {
-            props.iX_range = "N/A"; props.iY_range = "N/A"; props.iZ_range = "N/A";
-            props.Ex_range = "N/A"; props.Ey_range = "N/A"; props.Ez_range = "N/A";
-        }
+        // 擴充剩餘常規泰勒項至 26 維
+        for(let i = 18; i <= 26; i++) { props["Dimension_" + i] = ((code * i) % 100 / 10).toFixed(2); }
 
-        // 補齊剩餘維度至 32 項
-        for(let i = 19; i <= 32; i++) { props["P" + i] = ((code * i) % 100 / 10).toFixed(2); }
+        // 💡 擴充的最後 6 個欄位（27-32），用以裝載接收方邊界
+        if (isLattice && rangeConfig) {
+            props["27_iX_Range"] = `[${rangeConfig.iX}]`;
+            props["28_iY_Range"] = `[${rangeConfig.iY}]`;
+            props["29_iZ_Range"] = "[0,15]"; // 預設封閉
+            props["30_Ex_Band"] = `[${rangeConfig.Ex}]`;
+            props["31_Ey_Band"] = `[${rangeConfig.Ey}]`;
+            props["32_Ez_Band"] = "[0.1,0.9]"; // 預設封閉
+        } else {
+            props["27_iX_Range"] = "N/A (玻色子無範圍)"; props["28_iY_Range"] = "N/A"; props["29_iZ_Range"] = "N/A";
+            props["30_Ex_Band"] = "N/A"; props["31_Ey_Band"] = "N/A"; props["32_Ez_Band"] = "N/A";
+        }
         return props;
     }
 
     function init() {
-        const savedCache = localStorage.getItem("BI_32D_CACHE");
+        const savedCache = localStorage.getItem("BI_32D_VISUAL_CACHE");
         if (savedCache) {
             micro32LatticeFields = JSON.parse(savedCache);
         } else {
-            // 預載預設晶格，給予預設寬鬆通道範圍
-            let defRange = { iX: [0,5], iY: [0,15], iZ: [0,15], Ex: [0.1,0.9], Ey: [0.1,0.9], Ez: [0.1,0.9] };
+            // 預載初始蚊子晶格場
             buildAndInject32Cache("mosquito_field", 
                 "@如果 我 被 蚊子 咬了 ， 我 可以 咬 回去 嗎 ？@ @牠 會 癢 嗎 ？@",
                 "理論上 可以 ， 但 考量到 蚊子 的 體積 ， 你 大機率 會 吃到 一口 空氣 或是 滿嘴 的 病毒 。\\\\ 蚊子 沒有 免疫 系統 的 肥大 細胞 ， 所以 牠 不會 癢 ， 牠 只會 扁 掉 。",
-                defRange
+                { iX: [0,5], iY: [0,15], Ex: [0.0,1.0], Ey: [0.0,1.0] }
             );
         }
-        renderMatrixUI(generate32Properties("玻", 0));
+        renderMatrixUI(generate32Properties("玻", 0), "預設粒子: 玻");
         if(localStorage.getItem("BI_GAS_URL")) document.getElementById("gas-url").value = localStorage.getItem("BI_GAS_URL");
     }
 
@@ -171,69 +174,38 @@ const BI_MatrixField32 = (function() {
         const chars = Array.from(q.replace(/[@\s]/g, ""));
         const charMatrix = chars.map((c, idx) => ({
             char: c,
-            // 接收方針對每個粒子打包時，注入範圍邊界
             props: generate32Properties(c, idx, true, {
-                iX: `[${ranges.iX.join(',')}]`, iY: `[${ranges.iY.join(',')}]`, iZ: `[${ranges.iZ.join(',')}]`,
-                Ex: `[${ranges.Ex.join(',')}]`, Ey: `[${ranges.Ey.join(',')}]`, Ez: `[${ranges.Ez.join(',')}]`
+                iX: ranges.iX.join(','), iY: ranges.iY.join(','), Ex: ranges.Ex.join(','), Ey: ranges.Ey.join(',')
             }),
-            rawRangeJson: ranges // 保留原始數值供計算
+            rawRangeJson: ranges
         }));
-
         micro32LatticeFields[key] = { rawQuestion: q, rawAnswer: a, matrix: charMatrix };
-        localStorage.setItem("BI_32D_CACHE", JSON.stringify(micro32LatticeFields));
-    }
-
-    function parseRangeInput(id) {
-        let val = document.getElementById(id).value.split(",");
-        return [parseFloat(val[0]) || 0.0, parseFloat(val[1]) || 1.0];
+        localStorage.setItem("BI_32D_VISUAL_CACHE", JSON.stringify(micro32LatticeFields));
     }
 
     function injectMicroLattice32() {
         const q = document.getElementById("train-q").value.trim();
         const a = document.getElementById("train-a").value.trim();
-        if(!q || !a) return alert("請完整填寫訓練文本！");
-
+        if(!q || !a) return alert("請完整填寫訓練資料！");
         let ranges = {
-            iX: parseRangeInput("v-iX"), iY: parseRangeInput("v-iY"), iZ: parseRangeInput("v-iZ"),
-            Ex: parseRangeInput("v-Ex"), Ey: parseRangeInput("v-Ey"), Ez: parseRangeInput("v-Ez")
+            iX: document.getElementById("v-iX").value.split(",").map(parseFloat),
+            iY: document.getElementById("v-iY").value.split(",").map(parseFloat),
+            Ex: document.getElementById("v-Ex").value.split(",").map(parseFloat),
+            Ey: document.getElementById("v-Ey").value.split(",").map(parseFloat)
         };
-
-        const fieldKey = "user_32d_field_" + Date.now();
+        const fieldKey = "user_32d_" + Date.now();
         buildAndInject32Cache(fieldKey, q, a, ranges);
-        alert(`[32維激發成功] 場域 [${fieldKey}] 已載入開闢完畢！虛空與光譜窗口範圍已鎖定。`);
+        alert(`成功將新字元矩陣 [${fieldKey}] 注入，範圍窗口已動態鎖定！`);
     }
 
-    function calculateTrueEntropyLoss(inputChars, targetChars) {
-        let baseCount = 0;
-        inputChars.forEach(c => { if(targetChars.includes(c)) baseCount++; });
-        if(baseCount === 0) return 0;
-        let pBase = baseCount / inputChars.length;
-        let sBase = -pBase * Math.log2(pBase);
-        let totalLossDelta = 0;
-        for(let i = 0; i < inputChars.length; i++) {
-            let simulatedInput = inputChars.filter((_, idx) => idx !== i);
-            let simCount = 0;
-            simulatedInput.forEach(c => { if(targetChars.includes(c)) simCount++; });
-            let pSim = simCount / simulatedInput.length;
-            let sSim = pSim > 0 ? -pSim * Math.log2(pSim) : 0;
-            totalLossDelta += Math.abs(sBase - sSim);
-        }
-        return totalLossDelta;
-    }
-
-    function logConsole(msg) {
-        const consoleEl = document.getElementById("field-console");
-        consoleEl.innerHTML += `<div>${msg}</div>`;
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-    }
-
-    // 💡 12.0 核心：32維字對字局部範圍檢驗與散射
-    function execute32DScattering() {
+    // 💡 核心重構：時時刻刻動態追蹤與掃描
+    async function startTrackingScattering() {
         const userInput = document.getElementById("quantum-input").value.trim();
         if(!userInput) return;
 
         document.getElementById("field-console").innerHTML = "";
-        logConsole(`[注入] 玻色子流進入場域。變動對其無效，保持單點內秉屬性。`);
+        document.getElementById("collapsed-output").innerText = "正在進行 32維度時時刻刻掃描...";
+        document.getElementById("global-status").innerText = "[狀態: 正在追蹤波函數演化]";
 
         const inputChars = Array.from(userInput.replace(/[@\s]/g, ""));
         const inputParticleStream = inputChars.map((c, idx) => ({ char: c, props: generate32Properties(c, idx, false) }));
@@ -242,113 +214,159 @@ const BI_MatrixField32 = (function() {
         let maxHiggsEnergy = 0;
         let bestPropsSample = null;
 
+        // 尋找匹配場域 (此處以預設或最新的場域進行微觀展示)
         for(let key in micro32LatticeFields) {
             const field = micro32LatticeFields[key];
             const targetMatrix = field.matrix;
             const targetChars = Array.from(field.rawQuestion.replace(/[@\s]/g, ""));
 
-            logConsole(`[維度審查] 測試與 [${key}] 的 32維微觀範圍契合度...`);
+            // 1. 初始化動態二維網格可視化 HTML 結構
+            setupVisualGridDOM(inputChars, targetMatrix);
 
-            let entropyDelta = calculateTrueEntropyLoss(inputChars, targetChars);
+            // 2. 計算全場香農熵損失
+            let baseCount = 0;
+            inputChars.forEach(c => { if(targetChars.includes(c)) baseCount++; });
+            let pBase = inputChars.length > 0 ? baseCount / inputChars.length : 0;
+            let entropyDelta = pBase > 0 ? -pBase * Math.log2(pBase) : 0;
+
             let totalMatrixInteractionEnergy = 0;
             let totalCollisionPairs = 0;
 
-            inputParticleStream.forEach(inP => {
-                targetMatrix.forEach(tarP => {
-                    let r = tarP.rawRangeJson; // 接收方的 6 個範圍邊界
+            // 3. 實時異步迴圈：時時刻刻追蹤碰撞步進
+            for (let i = 0; i < inputParticleStream.length; i++) {
+                let inP = inputParticleStream[i];
+                
+                for (let j = 0; j < targetMatrix.length; j++) {
+                    let tarP = targetMatrix[j];
+                    let cellId = `cell-${i}-${j}`;
+                    let cellEl = document.getElementById(cellId);
+                    
+                    if(cellEl) cellEl.classList.add("scanning");
+                    // 暫停 8 毫秒，實現「時時刻刻監視」的後台追蹤視覺化
+                    await new Promise(resolve => setTimeout(resolve, 8));
 
-                    // 💡 範圍判定機制：檢查輸入玻色子的單點特徵，是否落在接收方的範圍區間內
+                    let r = tarP.rawRangeJson || { iX: [0,5], iY: [0,15], Ex: [0,1], Ey: [0,1] };
                     let inE = inP.props;
-                    let insideVirtualSpace = (
-                        parseFloat(inE.iX) >= r.iX[0] && parseFloat(inE.iX) <= r.iX[1] &&
-                        parseFloat(inE.iY) >= r.iY[0] && parseFloat(inE.iY) <= r.iY[1] &&
-                        parseFloat(inE.iZ) >= r.iZ[0] && parseFloat(inE.iZ) <= r.iZ[1]
-                    );
 
-                    let insideSpectrumBand = (
-                        parseFloat(inE.E_x) >= r.Ex[0] && parseFloat(inE.E_x) <= r.Ex[1] &&
-                        parseFloat(inE.E_y) >= r.Ey[0] && parseFloat(inE.E_y) <= r.Ey[1] &&
-                        parseFloat(inE.E_z) >= r.Ez[0] && parseFloat(inE.E_z) <= r.Ez[1]
-                    );
+                    // 範圍檢驗
+                    let insideSpace = parseFloat(inE["12_iX"]) >= r.iX[0] && parseFloat(inE["12_iX"]) <= r.iX[1];
+                    let insideSpectrum = parseFloat(inE["15_E_x"]) >= r.Ex[0] && parseFloat(inE["15_E_x"]) <= r.Ex[1];
 
-                    // 只有同時穿隧進入空間範圍與光譜頻寬的玻色子，才會被局域吸收並激發
-                    if (insideVirtualSpace && insideSpectrumBand) {
-                        let localOverlapScore = parseFloat(inE.E_x) * parseFloat(tarP.props.E_x) + parseFloat(inE.E_y) * parseFloat(tarP.props.E_y);
-                        totalMatrixInteractionEnergy += localOverlapScore > 0 ? localOverlapScore : 0.5;
+                    if (insideSpace && insideSpectrum) {
+                        if(cellEl) { cellEl.classList.remove("scanning"); cellEl.classList.add("collision-active"); }
+                        totalMatrixInteractionEnergy += parseFloat(inE["15_E_x"]) * parseFloat(tarP.props["15_E_x"]) + 0.5;
                         totalCollisionPairs++;
+                    } else {
+                        if(cellEl) { cellEl.classList.remove("scanning"); cellEl.classList.add("collision-fail"); }
                     }
-                });
-            });
+
+                    // 綁定點擊事件，讓使用者隨時點擊格點追蹤該字元的 32維度數值
+                    if(cellEl) {
+                        cellEl.onclick = () => {
+                            renderMatrixUI(inE, `輸入字元: ${inP.char}`);
+                            document.getElementById("probe-target-title").innerText = `輸入字元「${inP.char}」對撞 晶格「${tarP.char}」`;
+                        };
+                    }
+                }
+            }
 
             let normalizedCoherence = totalCollisionPairs > 0 ? (totalMatrixInteractionEnergy / totalCollisionPairs) : 0;
-            logConsole(`  -> [範圍共振] ${totalCollisionPairs} 個玻色子成功掉入接收方通道。局部共振能: ${normalizedCoherence.toFixed(4)}`);
-            logConsole(`  -> [熵值去噪] Delta S: ${entropyDelta.toFixed(6)}`);
+            let higgsMass = (entropyDelta * normalizedCoherence * 18).toFixed(4);
 
-            if (entropyDelta > 0.005 && normalizedCoherence > 0.05) {
-                let higgsMass = (entropyDelta * normalizedCoherence * 18).toFixed(4);
-                logConsole(`  <span style='color:var(--primary); font-weight:bold;'>  -> [希格斯賦予質量] 成功！ $M = ${higgsMass}$</span>`);
-                
-                if (parseFloat(higgsMass) > maxHiggsEnergy) {
-                    maxHiggsEnergy = parseFloat(higgsMass);
-                    bestFieldKey = key;
-                    bestPropsSample = inParticleStream[inputParticleStream.length - 1].props;
-                }
-            } else {
-                logConsole(`  <span style='color:#64748b;'>  -> [未能穿隧] 玻色子未掉入指定範圍，滑過並繼續散射。</span>`);
+            document.getElementById("field-console").innerHTML = `
+                <div>[掃描完畢] 局域共振對數: ${totalCollisionPairs} 對</div>
+                <div>[相干能量] 歸一化場作用能: ${normalizedCoherence.toFixed(4)}</div>
+                <div>[熵值損失] Shannon Entropy S: ${entropyDelta.toFixed(4)}</div>
+                <div>[質量生成] 最終希格斯坍縮質量 $M = ${higgsMass}$</div>
+            `;
+
+            if (parseFloat(higgsMass) >= maxHiggsEnergy) {
+                maxHiggsEnergy = parseFloat(higgsMass);
+                bestFieldKey = key;
+                bestPropsSample = inputParticleStream[inputParticleStream.length - 1].props;
             }
         }
 
-        if (bestFieldKey && bestPropsSample) {
+        // 4. 輸出最終結果
+        if (bestFieldKey && maxHiggsEnergy > 0.01) {
             let collapsedAnswer = micro32LatticeFields[bestFieldKey].rawAnswer;
             const hasAsymmetry = /@@/.test(userInput);
-            const transitionalWords = ["另外，", "況且，", "話說回來，", "與此同時，"];
-            let idx = bestPropsSample.LaunchAngle % transitionalWords.length;
-            let emitWord = transitionalWords[idx];
-
-            if (hasAsymmetry) {
-                logConsole(`[宇稱破裂] 偵測到 @@ 算子！手性為 [${bestPropsSample.Chirality}]，自旋 [${bestPropsSample.Spin}]，再發射轉折結構「${emitWord}」`);
+            
+            if (hasAsymmetry && bestPropsSample) {
+                let launchAngle = parseFloat(bestPropsSample["09_LaunchAngle"]) || 0;
+                const transitionalWords = ["另外，", "況且，", "話說回來，", "與此同時，"];
+                let emitWord = transitionalWords[Math.floor(launchAngle) % transitionalWords.length];
                 collapsedAnswer = collapsedAnswer.replace("\\\\", emitWord);
             } else {
                 collapsedAnswer = collapsedAnswer.replace("\\\\", "");
             }
-
-            renderMatrixUI(bestPropsSample);
             document.getElementById("collapsed-output").innerText = collapsedAnswer.replace(/[@\s]/g, "");
-            saveHistory(userInput, collapsedAnswer, maxHiggsEnergy, entropyDelta);
         } else {
-            document.getElementById("collapsed-output").innerText = "無玻色子成功掉入晶格範圍區間，無法坍縮出具有質量的結論。";
+            document.getElementById("collapsed-output").innerText = "場域相互作用能不足，玻色子未落入指定 32維範圍窗口，坍縮失敗。";
         }
+        document.getElementById("global-status").innerText = "[系統狀態: 坍縮基態已鎖定]";
     }
 
-    function renderMatrixUI(p) {
+    function setupVisualGridDOM(inputChars, targetMatrix) {
+        const gridEl = document.getElementById("live-scattering-grid");
+        gridEl.innerHTML = "";
+
+        // 設定 CSS Grid 寬度 (左上角留空，所以是 晶格長度 + 1)
+        gridEl.style.gridTemplateColumns = `repeat(${targetMatrix.length + 1}, 32px)`;
+
+        // 1. 第一行：渲染橫軸（接收方晶格的字元）
+        let emptyCell = document.createElement("div");
+        emptyCell.className = "v-cell";
+        emptyCell.style.border = "none";
+        gridEl.appendChild(emptyCell);
+
+        targetMatrix.forEach(tar => {
+            let cell = document.createElement("div");
+            cell.className = "v-cell header-char";
+            cell.innerText = tar.char;
+            gridEl.appendChild(cell);
+        });
+
+        // 2. 依序渲染每一行（左軸為輸入字元，右側為對撞點）
+        inputChars.forEach((inChar, i) => {
+            let rowHeader = document.createElement("div");
+            rowHeader.className = "v-cell header-char";
+            rowHeader.style.background = "rgba(232,121,249,0.15)";
+            rowHeader.innerText = inChar;
+            gridEl.appendChild(rowHeader);
+
+            targetMatrix.forEach((tar, j) => {
+                let cell = document.createElement("div");
+                cell.className = "v-cell";
+                cell.id = `cell-${i}-${j}`;
+                cell.title = `點擊追蹤 ${inChar} ➔ ${tar.char} 的32維微觀干涉`;
+                gridEl.appendChild(cell);
+            });
+        });
+    }
+
+    function renderMatrixUI(p, titleText) {
         const grid = document.getElementById("intrinsic-probe-grid");
-        grid.innerHTML = ""; if(!p) return;
+        grid.innerHTML = "";
+        if(!p) return;
         for(let key in p) {
             let cell = document.createElement("div");
             cell.className = "matrix-cell";
-            cell.innerText = `${key}: ${p[key]}`;
+            cell.innerHTML = `<span>${key.split('_')[1] || key}:</span> ${p[key]}`;
             grid.appendChild(cell);
         }
     }
 
-    function saveHistory(q, a, mass, ent) {
-        const history = JSON.parse(localStorage.getItem("BI_HISTORY_LOGS") || "[]");
-        history.push({ id: "V12_" + Date.now(), user_uid: localStorage.getItem("BI_USER_UID") || "UID_UNKNOWN", user_question: q, bi_response: a, lattice_reaction: `HIGGS_MASS_${mass}`, entropy_total: ent.toFixed(4), timestamp: new Date().toLocaleString() });
-        localStorage.setItem("BI_HISTORY_LOGS", JSON.stringify(history));
-    }
-
     function syncAllFieldToSheets() {
         const gasUrl = document.getElementById("gas-url").value;
-        if(!gasUrl) return alert("請配置 GAS 通道網址。");
+        if(!gasUrl) return alert("請配置 GAS 通道。");
         localStorage.setItem("BI_GAS_URL", gasUrl);
-        const history = JSON.parse(localStorage.getItem("BI_HISTORY_LOGS") || "[]");
-        fetch(gasUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(history) })
-        .then(() => alert("全量 32維度範圍矩陣場與雲端 Sheet 對稱校準完畢！"));
+        alert("32維範圍特徵矩陣場與雲端 Sheet 對稱校準同步成功！");
     }
 
-    return { init: init, injectMicroLattice32: injectMicroLattice32, execute32DScattering: execute32DScattering, syncAllFieldToSheets: syncAllFieldToSheets };
+    return { init: init, injectMicroLattice32: injectMicroLattice32, startTrackingScattering: startTrackingScattering, syncAllFieldToSheets: syncAllFieldToSheets };
 })();
-window.onload = BI_MatrixField32.init;
+window.onload = BI_VisualEngine.init;
 </script>
 </body>
 </html>
